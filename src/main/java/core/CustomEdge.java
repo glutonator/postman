@@ -18,12 +18,24 @@ public class CustomEdge extends DefaultWeightedEdge {
         return label;
     }
 
+    // c_ij
     public Double getWeight1() {
         return weight1;
     }
 
+    // c_ji
     public Double getWeight2() {
         return weight2;
+    }
+
+    public boolean checkWhichWeightIsBigger() {
+        if (this.weight1 <= this.weight2) {
+            // c_ij <= c_ji
+            return true;
+        } else {
+            // c_ij > c_ji
+            return false;
+        }
     }
 
     @Override

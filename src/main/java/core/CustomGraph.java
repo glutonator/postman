@@ -21,6 +21,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class CustomGraph {
+
+    private Integer TMP = 0;
+
     public void givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(Graph g) throws IOException {
 
         JGraphXAdapter<String, DefaultEdge> graphAdapter = new JGraphXAdapter<String, DefaultEdge>(g);
@@ -95,7 +98,8 @@ public class CustomGraph {
         };
 
         Supplier<CustomEdge> edgeSupplier = new Supplier<CustomEdge>() {
-            private int id = 0;
+            private int id = TMP;
+            //TODO: zrobić randa dla wartości wag, trzeba też uwzględnić stosuenk liczby dróg jednokiernkowych
             @Override
             public CustomEdge get() {
                 return new CustomEdge("e"+id++,10.0,20.0);
