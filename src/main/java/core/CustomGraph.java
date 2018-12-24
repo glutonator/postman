@@ -103,6 +103,33 @@ public class CustomGraph {
         printGraph(simpleDirectedWeightedGraph);
     }
 
+    public void createDirectedGraphComplete() throws IOException {
+        int SIZE = 4;
+        Supplier<String> vSupplier = new Supplier<String>() {
+            private int id = 0;
+
+            @Override
+            public String get() {
+                return "v" + id++;
+            }
+        };
+//        Graph<String, DefaultWeightedEdge> completeGraph =
+//                new SimpleGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier(), false);
+        SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> completeGraph =
+                new SimpleDirectedWeightedGraph<>(vSupplier,SupplierUtil.createDefaultWeightedEdgeSupplier());
+        // Create the CompleteGraphGenerator object
+        CompleteGraphGenerator<String, DefaultWeightedEdge> completeGenerator =
+                new CompleteGraphGenerator<>(SIZE);
+
+        // Use the CompleteGraphGenerator object to make completeGraph a
+        // complete graph with [size] number of vertices
+        completeGenerator.generateGraph(completeGraph);
+
+        printGraphEdges(completeGraph);
+        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(completeGraph);
+        printGraph(completeGraph);
+    }
+
     public void printGraph(Graph graph) {
         // Print out the graph to be sure it's really complete
         System.out.println("***************************************************8");
