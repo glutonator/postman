@@ -7,10 +7,7 @@ import com.sun.javafx.geom.Edge;
 import org.jgrapht.Graph;
 import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.generate.CompleteGraphGenerator;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.*;
 import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.util.SupplierUtil;
 
@@ -39,12 +36,12 @@ public class CustomGraph {
     }
 
     public void createGraphSimpleGraph() throws IOException {
-        System.out.println("ppp");
-
-        Graph<String, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
-        g.addVertex("v1");
-        g.addVertex("v2");
-        g.addVertex("v3");
+//        System.out.println("ppp");
+//
+//        Graph<String, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
+//        g.addVertex("v1");
+//        g.addVertex("v2");
+//        g.addVertex("v3");
 
 //        g.addEdge("v1", "v2");
 //        g.addEdge("v2", "v3");
@@ -82,6 +79,47 @@ public class CustomGraph {
         System.out.println("sdadsa");
         printGraphEdges(completeGraph);
 
+    }
+
+    public Graph createComleteGraphUndireted(int size) {
+//        int SIZE = 4;
+        int SIZE = size;
+
+        Supplier<String> vSupplier = new Supplier<String>() {
+            private int id = 0;
+
+            @Override
+            public String get() {
+                return "v" + id++;
+            }
+        };
+
+        Supplier<CustomEdge> edgeSupplier = new Supplier<CustomEdge>() {
+            private int id = 0;
+            @Override
+            public CustomEdge get() {
+                return new CustomEdge("e"+id++,10.0,20.0);
+            }
+        };
+
+//        Graph<String, DefaultWeightedEdge> completeGraph =
+//                new SimpleWeightedGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
+        Graph<String, CustomEdge> completeGraph =
+                new SimpleWeightedGraph<>(vSupplier, edgeSupplier);
+        // Create the CompleteGraphGenerator object
+//        CompleteGraphGenerator<String, DefaultWeightedEdge> completeGenerator =
+//                new CompleteGraphGenerator<>(SIZE);
+        CompleteGraphGenerator<String, CustomEdge> completeGenerator =
+                new CompleteGraphGenerator<>(SIZE);
+
+        // Use the CompleteGraphGenerator object to make completeGraph a
+        // complete graph with [size] number of vertices
+        completeGenerator.generateGraph(completeGraph);
+
+
+        printGraph(completeGraph);
+        printGraphEdges(completeGraph);
+        return completeGraph;
     }
 
     public void createDirectedGraph() throws IOException {
@@ -132,7 +170,7 @@ public class CustomGraph {
 
     public void printGraph(Graph graph) {
         // Print out the graph to be sure it's really complete
-        System.out.println("***************************************************8");
+        System.out.println("****************************************************");
         Iterator<String> iter = new DepthFirstIterator<>(graph);
         while (iter.hasNext()) {
             String vertex = iter.next();
@@ -143,6 +181,7 @@ public class CustomGraph {
     }
 
     public void printGraphEdges(Graph graph) {
+        System.out.println("****************************************************");
         System.out.print(String.join(",", graph.vertexSet()));
         System.out.println("---count: " + graph.vertexSet().size());
         for (Object e : graph.edgeSet()) {
