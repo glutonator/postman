@@ -126,7 +126,7 @@ public class CustomGraph {
         return completeGraph;
     }
 
-    public void createDirectedGraph() throws IOException {
+    public Graph createDirectedGraph() {
         SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> simpleDirectedWeightedGraph =
                 new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
         simpleDirectedWeightedGraph.addVertex("v1");
@@ -134,6 +134,10 @@ public class CustomGraph {
         simpleDirectedWeightedGraph.addVertex("v3");
         DefaultWeightedEdge edge = simpleDirectedWeightedGraph.addEdge("v1", "v2");
         DefaultWeightedEdge edge2 = simpleDirectedWeightedGraph.addEdge("v2", "v1");
+        simpleDirectedWeightedGraph.addEdge("v1", "v3");
+        simpleDirectedWeightedGraph.addEdge("v3", "v1");
+        simpleDirectedWeightedGraph.addEdge("v2", "v3");
+        simpleDirectedWeightedGraph.addEdge("v3", "v2");
 
         simpleDirectedWeightedGraph.setEdgeWeight(edge, 45);
 //        System.out.println(simpleDirectedWeightedGraph.toString());
@@ -143,6 +147,7 @@ public class CustomGraph {
         printGraphEdges(simpleDirectedWeightedGraph);
 //        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(simpleDirectedWeightedGraph);
         printGraph(simpleDirectedWeightedGraph);
+        return simpleDirectedWeightedGraph;
     }
 
     public void createDirectedGraphComplete() throws IOException {
