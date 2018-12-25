@@ -3,10 +3,20 @@ package core;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class CustomEdge extends DefaultWeightedEdge {
     private String label;
     private Double weight1;
     private Double weight2;
+
+    public CustomEdge() {
+        double random = ThreadLocalRandom.current().nextInt(2, 10);
+        this.label = "aaaa";
+        this.weight1 = random;
+        this.weight2 = random+2;
+
+    }
 
     public CustomEdge(String label, Double weight1, Double weight2) {
         this.label = label;
@@ -38,13 +48,18 @@ public class CustomEdge extends DefaultWeightedEdge {
         }
     }
 
+//    @Override
+//    public String toString() {
+//        return "CustomEdge{" +
+//                "(" + this.getSource() + " : " + this.getTarget() + "), " +
+//                "label='" + label + '\'' +
+//                ", weight1=" + weight1 +
+//                ", weight2=" + weight2 +
+//                '}';
+//    }
     @Override
     public String toString() {
-        return "CustomEdge{" +
-                "(" + this.getSource() + " : " + this.getTarget() + "), " +
-                "label='" + label + '\'' +
-                ", weight1=" + weight1 +
-                ", weight2=" + weight2 +
-                '}';
+        return
+                "(" + this.getSource() + " : " + this.getTarget() + ")";
     }
 }

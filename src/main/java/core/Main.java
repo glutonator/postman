@@ -21,6 +21,6 @@ public class Main {
 ////        customGraph.createDirectedGraph();
 //        customGraph.createDirectedGraphComplete();
         Postman postman = new Postman();
-        postman.func();
+        postman.func222();
     }
 }

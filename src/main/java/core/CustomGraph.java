@@ -150,6 +150,141 @@ public class CustomGraph {
         return simpleDirectedWeightedGraph;
     }
 
+    public Graph createDirectedGraphFromBook() {
+        SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> simpleDirectedWeightedGraph =
+                new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+        simpleDirectedWeightedGraph.addVertex("v1");
+        simpleDirectedWeightedGraph.addVertex("v2");
+        simpleDirectedWeightedGraph.addVertex("v3");
+        simpleDirectedWeightedGraph.addVertex("v4");
+        simpleDirectedWeightedGraph.addVertex("s");
+        simpleDirectedWeightedGraph.addVertex("t");
+
+        DefaultWeightedEdge edge = simpleDirectedWeightedGraph.addEdge("s", "v1");
+        DefaultWeightedEdge edge2 = simpleDirectedWeightedGraph.addEdge("s", "v2");
+        DefaultWeightedEdge edge3 = simpleDirectedWeightedGraph.addEdge("v1", "v3");
+        DefaultWeightedEdge edge4 = simpleDirectedWeightedGraph.addEdge("v2", "v4");
+        DefaultWeightedEdge edge5 = simpleDirectedWeightedGraph.addEdge("v1", "v2");
+        DefaultWeightedEdge edge6 = simpleDirectedWeightedGraph.addEdge("v4", "v3");
+        DefaultWeightedEdge edge7 = simpleDirectedWeightedGraph.addEdge("v3", "t");
+        DefaultWeightedEdge edge8 = simpleDirectedWeightedGraph.addEdge("v4", "t");
+
+        simpleDirectedWeightedGraph.setEdgeWeight(edge, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge2, 9);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge3, 9);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge4, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge5, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge6, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge7, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge8, 9);
+
+        printGraphEdges(simpleDirectedWeightedGraph);
+//        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(simpleDirectedWeightedGraph);
+        printGraph(simpleDirectedWeightedGraph);
+        return simpleDirectedWeightedGraph;
+    }
+
+    public Graph createDirectedGraphFromBookMultigraph() {
+        DirectedWeightedMultigraph<String, DefaultWeightedEdge> simpleDirectedWeightedGraph =
+                new DirectedWeightedMultigraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+        simpleDirectedWeightedGraph.addVertex("v1");
+        simpleDirectedWeightedGraph.addVertex("v2");
+        simpleDirectedWeightedGraph.addVertex("v3");
+        simpleDirectedWeightedGraph.addVertex("v4");
+        simpleDirectedWeightedGraph.addVertex("s");
+        simpleDirectedWeightedGraph.addVertex("t");
+
+        DefaultWeightedEdge edge = simpleDirectedWeightedGraph.addEdge("s", "v1");
+        DefaultWeightedEdge edge2 = simpleDirectedWeightedGraph.addEdge("s", "v2");
+        DefaultWeightedEdge edge3 = simpleDirectedWeightedGraph.addEdge("v1", "v3");
+        DefaultWeightedEdge edge4 = simpleDirectedWeightedGraph.addEdge("v2", "v4");
+        DefaultWeightedEdge edge5 = simpleDirectedWeightedGraph.addEdge("v1", "v2");
+        DefaultWeightedEdge edge6 = simpleDirectedWeightedGraph.addEdge("v4", "v3");
+        DefaultWeightedEdge edge7 = simpleDirectedWeightedGraph.addEdge("v3", "t");
+        DefaultWeightedEdge edge8 = simpleDirectedWeightedGraph.addEdge("v4", "t");
+
+        DefaultWeightedEdge edge888 = simpleDirectedWeightedGraph.addEdge("v4", "t");
+        DefaultWeightedEdge edge777 = simpleDirectedWeightedGraph.addEdge("v3", "t");
+
+
+        simpleDirectedWeightedGraph.setEdgeWeight(edge, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge2, 9);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge3, 9);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge4, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge5, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge6, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge7, 1);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge8, 9);
+
+
+
+        simpleDirectedWeightedGraph.setEdgeWeight(edge888, 888);
+        simpleDirectedWeightedGraph.setEdgeWeight(edge777, 1);
+
+
+        printGraphEdges(simpleDirectedWeightedGraph);
+//        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(simpleDirectedWeightedGraph);
+        printGraph(simpleDirectedWeightedGraph);
+        return simpleDirectedWeightedGraph;
+    }
+
+    public Graph createDirectedGraphFromBookMultigraphCustomEdge() {
+        DirectedWeightedMultigraph<String, CustomEdge> simpleDirectedWeightedGraph =
+                new DirectedWeightedMultigraph<String, CustomEdge>(CustomEdge.class);
+        simpleDirectedWeightedGraph.addVertex("v1");
+        simpleDirectedWeightedGraph.addVertex("v2");
+        simpleDirectedWeightedGraph.addVertex("v3");
+        simpleDirectedWeightedGraph.addVertex("v4");
+        simpleDirectedWeightedGraph.addVertex("s");
+        simpleDirectedWeightedGraph.addVertex("t");
+
+        CustomEdge customEdge = new CustomEdge("qqqq",12.0,59.0);
+
+        boolean edge = simpleDirectedWeightedGraph.addEdge("s", "v1",new CustomEdge());
+        boolean edge2 = simpleDirectedWeightedGraph.addEdge("s", "v2",new CustomEdge());
+        boolean edge3 = simpleDirectedWeightedGraph.addEdge("v1", "v3",new CustomEdge());
+        boolean edge4 = simpleDirectedWeightedGraph.addEdge("v2", "v4",new CustomEdge());
+        boolean edge5 = simpleDirectedWeightedGraph.addEdge("v1", "v2",new CustomEdge());
+        boolean edge6 = simpleDirectedWeightedGraph.addEdge("v4", "v3",new CustomEdge());
+        boolean edge7 = simpleDirectedWeightedGraph.addEdge("v3", "t",new CustomEdge());
+        boolean edge8 = simpleDirectedWeightedGraph.addEdge("v4", "t",new CustomEdge());
+
+//        CustomEdge edge888 = simpleDirectedWeightedGraph.addEdge("v4", "t");
+//        CustomEdge edge777 = simpleDirectedWeightedGraph.addEdge("v3", "t");
+
+
+        simpleDirectedWeightedGraph.setEdgeWeight("s", "v1",1);
+        simpleDirectedWeightedGraph.setEdgeWeight("s", "v2",9);
+        simpleDirectedWeightedGraph.setEdgeWeight("v1", "v3",9);
+        simpleDirectedWeightedGraph.setEdgeWeight("v2", "v4",1);
+        simpleDirectedWeightedGraph.setEdgeWeight("v1", "v2",1);
+        simpleDirectedWeightedGraph.setEdgeWeight("v4", "v3",1);
+        simpleDirectedWeightedGraph.setEdgeWeight("v3", "t",1);
+        simpleDirectedWeightedGraph.setEdgeWeight("v4", "t",9);
+
+
+//        simpleDirectedWeightedGraph.setEdgeWeight();
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge, 1);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge2, 9);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge3, 9);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge4, 1);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge5, 1);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge6, 1);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge7, 1);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge8, 9);
+
+
+
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge888, 888);
+//        simpleDirectedWeightedGraph.setEdgeWeight(edge777, 1);
+
+
+        printGraphEdges(simpleDirectedWeightedGraph);
+//        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(simpleDirectedWeightedGraph);
+        printGraph(simpleDirectedWeightedGraph);
+        return simpleDirectedWeightedGraph;
+    }
+
     public void createDirectedGraphComplete() throws IOException {
         int SIZE = 4;
         Supplier<String> vSupplier = new Supplier<String>() {

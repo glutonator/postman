@@ -126,7 +126,7 @@ public class Postman {
 
 //        MinimumCostFlowAlgorithm.MinimumCostFlowImpl minimumCostFlowAlgorithm = new MinimumCostFlowAlgorithm.MinimumCostFlowImpl()
 //        CapacityScalingMinimumCostFlow()
-        Map<DefaultWeightedEdge,Double> flowMap = new HashMap<>();
+//        Map<DefaultWeightedEdge,Double> flowMap = new HashMap<>();
         //todo: tutaj jest coś bradzo nie tak, może by użyć tej drugiej funckji CapacityScalingMinimumCostFlow
 //        MinimumCostFlowAlgorithm rrrr= new MinimumCostFlowAlgorithm.MinimumCostFlowImpl(5.0,flowMap);
 //        rrrr.getMinimumCostFlow()
@@ -138,9 +138,91 @@ public class Postman {
         //to jest dużo lepsze podejście bo coś dizała
         CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
 //        costFlow.getFlowMap();
-        MinimumCostFlowAlgorithm.MinimumCostFlow<DefaultWeightedEdge> qeqwe = costFlow.getMinimumCostFlow(problem);
+        MinimumCostFlowAlgorithm.MinimumCostFlow<DefaultWeightedEdge> flows = costFlow.getMinimumCostFlow(problem);
 
         System.out.println("**************************");
+        System.out.println(flows.getFlowMap());
+
+    }
+
+    public void func222()  {
+        final int qwerty = 0;
+        CustomGraph customGraph = new CustomGraph();
+        Graph graph = customGraph.createDirectedGraphFromBookMultigraphCustomEdge();
+        Function<String, Integer> nodesFunction =x->{
+            if(x.equals("t")) {
+                System.out.println(x);
+                System.out.println("aaaaaaaaaa");
+                return -5;
+            }
+            else if(x.equals("s")) {
+                System.out.println(x);
+                System.out.println("bbbbbbbbbb");
+                return 5;
+            }
+            else {
+                System.out.println(x);
+                System.out.println("ccccccccccc");
+                return 0;
+            }
+
+        };
+//        Function<DefaultWeightedEdge, Integer> edgesFunction = x -> {
+        Function<CustomEdge, Integer> edgesFunction = x -> {
+            if(x.toString().equals("(s : v1)")) {
+                System.out.println(x.toString());
+                return 4;
+            }
+            else if (x.toString().equals("(s : v2)")) {
+                System.out.println(x.toString());
+                return 5;
+            }
+            else if (x.toString().equals("(v1 : v3)")) {
+                System.out.println(x.toString());
+                return 5;
+            }
+            else if (x.toString().equals("(v2 : v4)")) {
+                System.out.println(x.toString());
+                return 2;
+            }
+            else if (x.toString().equals("(v1 : v2)")) {
+                System.out.println(x.toString());
+                return 2;
+            }
+            else if (x.toString().equals("(v4 : v3)")) {
+                System.out.println(x.toString());
+                return 3;
+            }
+            else if (x.toString().equals("(v3 : t)")) {
+                System.out.println(x.toString());
+                return 5;
+            }
+            else if (x.toString().equals("(v4 : t)")) {
+                System.out.println(x.toString());
+                return 3;
+            }
+            else {
+                System.out.println(x.toString());
+                System.out.println("wwwwwwwwwww");
+                return 10;
+
+            }
+        };
+
+//        MinimumCostFlowProblem.MinimumCostFlowProblemImpl problem =
+        MinimumCostFlowProblem problem =
+                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl(graph, nodesFunction, edgesFunction);
+        System.out.println("**************************");
+        System.out.println(problem.getGraph());
+        System.out.println(problem.getNodeSupply());
+        System.out.println(problem.getArcCapacityLowerBounds());
+        System.out.println(problem.getArcCapacityUpperBounds());
+
+        CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
+        MinimumCostFlowAlgorithm.MinimumCostFlow<DefaultWeightedEdge> flows = costFlow.getMinimumCostFlow(problem);
+
+        System.out.println("**************************");
+        System.out.println(flows.getFlowMap());
 
     }
 
