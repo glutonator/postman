@@ -6,17 +6,20 @@ import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
 import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
 import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
 public class Postman {
     private Graph<String, CustomEdge> graph;
-//    private Map<Integer, Pair<Double, Double>> weightsMap;
-
+    //    private Map<Integer, Pair<Double, Double>> weightsMap;
+    private int size;
 
     public Postman() {
     }
@@ -24,6 +27,7 @@ public class Postman {
     public Postman(int size) throws IOException {
         CustomGraph customGraph = new CustomGraph();
         this.graph = customGraph.createComleteGraphUndireted(size);
+        this.size = size;
 //        this.weightsMap = new HashMap<>(size);
 //        populateWeightsMap(size);
         System.out.println(toString());
@@ -31,43 +35,106 @@ public class Postman {
     }
 
 
-//    public void populateWeightsMap(int size) {
-//        for (int i = 0; i < size; i++) {
-//            this.weightsMap.put(i, new Pair<>(i + 0.55, i + 0.88));
-//        }
-//    }
-//
-//    // [c_ij , c_ji]
-//    public Pair<Double, Double> getPairOfWeighsFromEdge(int edgeIndex) {
-//        return this.weightsMap.get(edgeIndex);
-//    }
-//
-//    // c_ij
-//    public Double getFirstWeighFromPair(Pair<Double, Double> pair) {
-//        return pair.getKey();
-//    }
-//
-//    // c_ji
-//    public Double getSecondWeighFromPair(Pair<Double, Double> pair) {
-//        return pair.getValue();
-//    }
-//
-//    public boolean checkWhichWeightIsBigger(int edgeIndex) {
-//        Pair<Double, Double> pair = getPairOfWeighsFromEdge(edgeIndex);
-//        if (getFirstWeighFromPair(pair) <= getSecondWeighFromPair(pair)) {
-//            // c_ij <= c_ji
-//            return true;
-//        } else {
-//            // c_ij > c_ji
-//            return false;
-//        }
-//    }
-
     public void alg() {
-//        Graph<String, DefaultWeightedEdge> graphD_G;
-//        SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> simpleDirectedWeightedGraph =
-//                new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+        //todo: zmienna graf używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
+        Graph graphD_G = createGraphD_G();
 
+        Graph<String, LabelEdge> graphDApostrophe =
+                new DirectedWeightedMultigraph<String, LabelEdge>(LabelEdge.class);
+
+        //populate nodes
+        for (String vertex : this.graph.vertexSet()) {
+            graphDApostrophe.addVertex(vertex);
+        }
+        //populate edges
+        for (CustomEdge edge : this.graph.edgeSet()) {
+            String source = this.graph.getEdgeSource(edge);
+            String target = this.graph.getEdgeTarget(edge);
+            Double c_ij = edge.getWeight1();
+            Double c_ji = edge.getWeight1();
+            //(i,j)
+            graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")"));
+            graphDApostrophe.setEdgeWeight(source, target, c_ij);
+            //(j,i)
+            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")"));
+            graphDApostrophe.setEdgeWeight(target, source, c_ji);
+            //(j,i)'
+            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")'"));
+            graphDApostrophe.setEdgeWeight(target, source, (c_ji - c_ij) / 2);
+        }
+        //definiowanie problemu przepływu o minimalnym koszcie
+        Map <String, Integer> demand = createDemandMap(graphD_G);
+
+        Function<String, Integer> nodesFunction = demand::get;
+        Function<LabelEdge, Integer> edgesFunction = x -> {
+            if (x.getLabel().contains("\'")) {
+                return 2;
+            }
+            //todo zminić na nieskończoność
+            return 10;
+        };
+
+        MinimumCostFlowProblem problem =
+                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl(graphDApostrophe, nodesFunction, edgesFunction);
+        CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
+        MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows = costFlow.getMinimumCostFlow(problem);
+
+        Map <LabelEdge,Double> optimalFlowMap = flows.getFlowMap();
+        System.out.println("**************************");
+        System.out.println(optimalFlowMap);
+
+        // Tworznie grafu D'' na podstawie optymalnych wartości przepływu
+        Graph<String, LabelEdge> graphDApostrophe2 =
+                new DirectedWeightedMultigraph<String, LabelEdge>(LabelEdge.class);
+        //populate nodes
+        for (String vertex : this.graph.vertexSet()) {
+            graphDApostrophe2.addVertex(vertex);
+        }
+        //populate edges
+        for(LabelEdge edge : optimalFlowMap.keySet()) {
+            if(edge.getLabel().contains("\'")) {
+                Double flow =  optimalFlowMap.get(edge);
+
+                //ekstrachowanie nazw wierchoków z etykiety
+                //tmpLabel- konwersja - (v3,v0)' -> v3,v0
+                String tmpLabel = edge.getLabel().substring(1,edge.getLabel().length()-2);
+                System.out.println(tmpLabel);
+                //ekstrakcja początku i końca krawędzi
+                String[] target_source = tmpLabel.split(",");
+                //nadanie przejrzystych nazw zmiennych - target -> j && source -> i
+                String target = target_source[0];
+                String source = target_source[1];
+                System.out.println(target);
+                System.out.println(source);
+                if(flow==0) {
+                    String label_ij = "("+source+","+target+")";
+                    optimalFlowMap.get(label_ij);
+                    //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
+                }
+                else {
+                    String label_ji = "("+target+","+source+")";
+                    optimalFlowMap.get(label_ji);
+                    //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
+
+                }
+            }
+        }
+
+    }
+
+    public Map createDemandMap(Graph graphD_G) {
+        Iterator<String> iter = new DepthFirstIterator<>(graphD_G);
+        Map<String, Integer> demand = new HashMap<>(this.size);
+        while (iter.hasNext()) {
+            String vertex = iter.next();
+            int d_i = graphD_G.outDegreeOf(vertex) - graphD_G.inDegreeOf(vertex);
+            demand.put(vertex, d_i);
+        }
+        System.out.println("demand: "+demand);
+        return demand;
+    }
+
+    public Graph createGraphD_G() {
         Graph<String, DefaultWeightedEdge> graphD_G =
                 new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
@@ -88,25 +155,23 @@ public class Postman {
             }
             //TODO: Trzeba by rozkminić  tą funkcję do przepływów bo bez nie jani rusz :)
         }
-
+        return graphD_G;
     }
 
-    public void func()  {
+    public void func() {
         final int qwerty = 0;
         CustomGraph customGraph = new CustomGraph();
         Graph graph = customGraph.createDirectedGraph();
-        Function<String, Integer> nodesFunction =x->{
-            if(x.equals("v1")) {
+        Function<String, Integer> nodesFunction = x -> {
+            if (x.equals("v1")) {
                 System.out.println(x);
                 System.out.println("aaaaaaaaaa");
                 return -5;
-            }
-            else if(x.equals("v2")) {
+            } else if (x.equals("v2")) {
                 System.out.println(x);
                 System.out.println("bbbbbbbbbb");
                 return 5;
-            }
-            else {
+            } else {
                 System.out.println(x);
                 System.out.println("ccccccccccc");
                 return 0;
@@ -145,22 +210,20 @@ public class Postman {
 
     }
 
-    public void func222()  {
+    public void func222() {
         final int qwerty = 0;
         CustomGraph customGraph = new CustomGraph();
         Graph graph = customGraph.createDirectedGraphFromBookMultigraphCustomEdge();
-        Function<String, Integer> nodesFunction =x->{
-            if(x.equals("t")) {
+        Function<String, Integer> nodesFunction = x -> {
+            if (x.equals("t")) {
                 System.out.println(x);
                 System.out.println("aaaaaaaaaa");
                 return -5;
-            }
-            else if(x.equals("s")) {
+            } else if (x.equals("s")) {
                 System.out.println(x);
                 System.out.println("bbbbbbbbbb");
                 return 5;
-            }
-            else {
+            } else {
                 System.out.println(x);
                 System.out.println("ccccccccccc");
                 return 0;
@@ -169,39 +232,31 @@ public class Postman {
         };
 //        Function<DefaultWeightedEdge, Integer> edgesFunction = x -> {
         Function<CustomEdge, Integer> edgesFunction = x -> {
-            if(x.toString().equals("(s : v1)")) {
+            if (x.toString().equals("(s : v1)")) {
                 System.out.println(x.toString());
                 return 4;
-            }
-            else if (x.toString().equals("(s : v2)")) {
+            } else if (x.toString().equals("(s : v2)")) {
                 System.out.println(x.toString());
                 return 5;
-            }
-            else if (x.toString().equals("(v1 : v3)")) {
+            } else if (x.toString().equals("(v1 : v3)")) {
                 System.out.println(x.toString());
                 return 5;
-            }
-            else if (x.toString().equals("(v2 : v4)")) {
+            } else if (x.toString().equals("(v2 : v4)")) {
                 System.out.println(x.toString());
                 return 2;
-            }
-            else if (x.toString().equals("(v1 : v2)")) {
+            } else if (x.toString().equals("(v1 : v2)")) {
                 System.out.println(x.toString());
                 return 2;
-            }
-            else if (x.toString().equals("(v4 : v3)")) {
+            } else if (x.toString().equals("(v4 : v3)")) {
                 System.out.println(x.toString());
                 return 3;
-            }
-            else if (x.toString().equals("(v3 : t)")) {
+            } else if (x.toString().equals("(v3 : t)")) {
                 System.out.println(x.toString());
                 return 5;
-            }
-            else if (x.toString().equals("(v4 : t)")) {
+            } else if (x.toString().equals("(v4 : t)")) {
                 System.out.println(x.toString());
                 return 3;
-            }
-            else {
+            } else {
                 System.out.println(x.toString());
                 System.out.println("wwwwwwwwwww");
                 return 10;
