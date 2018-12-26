@@ -1,20 +1,17 @@
 package core;
 
-import javafx.util.Pair;
 import org.jgrapht.Graph;
+import org.jgrapht.GraphTests;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
 import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
+import org.jgrapht.alg.interfaces.MatchingAlgorithm;
 import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.DirectedWeightedMultigraph;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.alg.matching.blossom.v5.KolmogorovMinimumWeightPerfectMatching;
+import org.jgrapht.graph.*;
 import org.jgrapht.traverse.DepthFirstIterator;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class Postman {
@@ -30,16 +27,58 @@ public class Postman {
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
         this.graph = customGraph.createComleteGraphUndireted(size);
         this.size = size;
-//        this.weightsMap = new HashMap<>(size);
-//        populateWeightsMap(size);
         System.out.println(toString());
         customGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
 
+    public void auxiliaryAlg() {
+        if(!GraphTests.isEulerian(this.graph)) {
+            System.out.println("Graph is not Eulerian");
+            System.out.println("Conversion to Eulerian");
+
+            CustomGraph customGraph = new CustomGraph();
+            //todo: w przypdaku gdy jest grafem eulera opuscić tą funckję
+            //todo: trzeba wziac poprawkę, że na wyjsćiu tej funckji będzie multigraf
+
+            //nadanie krawędziom grafu G wag - nie używane sa do niczego innego !!!
+            for (CustomEdge edge : this.graph.edgeSet()) {
+                this.graph.setEdgeWeight(edge, (edge.getWeight1() + edge.getWeight2()) / 2);
+            }
+            //znalezienie nodów o nieparzystym stopmniu
+            Set<String> oddVertexes = new HashSet<>();
+            Iterator<String> iter = new DepthFirstIterator<>(graph);
+            while (iter.hasNext()) {
+                String vertex = iter.next();
+                int degree = this.graph.degreeOf(vertex);
+                System.out.println(degree);
+                if (degree % 2 != 0) {
+                    oddVertexes.add(vertex);
+                }
+            }
+
+            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
+            customGraph.printGraphEdges(asSubgraph);
+            customGraph.printGraph(asSubgraph);
+            KolmogorovMinimumWeightPerfectMatching<String, CustomEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(asSubgraph);
+            MatchingAlgorithm.Matching<String, CustomEdge> matching1 = matching.getMatching();
+            for (CustomEdge edge : matching1.getEdges()) {
+                boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
+                        new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
+                System.out.println(testIfEdgeAdded);
+            }
+            System.out.println(matching1);
+            customGraph.printGraphEdges(this.graph);
+            System.out.println("Graph is Eulerian: "+ GraphTests.isEulerian(this.graph));
+
+        }
+        else {
+            System.out.println("Graph is Eulerian");
+        }
+    }
 
     public void alg() {
         //todo: zmienna graf używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
-        Graph graphD_G = createGraphD_G();
+        Graph<String, DefaultWeightedEdge> graphD_G = createGraphD_G();
 
         Graph<String, LabelEdge> graphDApostrophe =
                 new DirectedWeightedMultigraph<String, LabelEdge>(LabelEdge.class);
@@ -76,9 +115,9 @@ public class Postman {
             return 10;
         };
 
-        MinimumCostFlowProblem problem =
-                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl(graphDApostrophe, nodesFunction, edgesFunction);
-        CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
+        MinimumCostFlowProblem<String, LabelEdge> problem =
+                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl<>(graphDApostrophe, nodesFunction, edgesFunction);
+        CapacityScalingMinimumCostFlow<String, LabelEdge> costFlow = new CapacityScalingMinimumCostFlow<String, LabelEdge>();
         MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows = costFlow.getMinimumCostFlow(problem);
 
         Map<LabelEdge, Double> optimalFlowMap = flows.getFlowMap();
@@ -147,7 +186,7 @@ public class Postman {
         return numberOfNewEdges;
     }
 
-    public Map createDemandMap(Graph graphD_G) {
+    public Map<String, Integer> createDemandMap(Graph<String, DefaultWeightedEdge> graphD_G) {
         Iterator<String> iter = new DepthFirstIterator<>(graphD_G);
         Map<String, Integer> demand = new HashMap<>(this.size);
         while (iter.hasNext()) {
@@ -159,7 +198,7 @@ public class Postman {
         return demand;
     }
 
-    public Graph createGraphD_G() {
+    public Graph<String, DefaultWeightedEdge> createGraphD_G() {
         Graph<String, DefaultWeightedEdge> graphD_G =
                 new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
@@ -167,7 +206,6 @@ public class Postman {
         for (String vertex : this.graph.vertexSet()) {
             graphD_G.addVertex(vertex);
         }
-
         //populate edges
         for (CustomEdge edge : this.graph.edgeSet()) {
             if (edge.checkWhichWeightIsBigger()) {
@@ -176,9 +214,7 @@ public class Postman {
             } else {
                 DefaultWeightedEdge edgeNew = graphD_G.addEdge(graph.getEdgeTarget(edge), graph.getEdgeSource(edge));
                 graphD_G.setEdgeWeight(edgeNew, edge.getWeight2());
-
             }
-            //TODO: Trzeba by rozkminić  tą funkcję do przepływów bo bez nie jani rusz :)
         }
         return graphD_G;
     }

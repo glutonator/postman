@@ -108,8 +108,10 @@ public class CustomGraph {
 
 //        Graph<String, DefaultWeightedEdge> completeGraph =
 //                new SimpleWeightedGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
+//        Graph<String, CustomEdge> completeGraph =
+//                new SimpleWeightedGraph<>(vSupplier, edgeSupplier);
         Graph<String, CustomEdge> completeGraph =
-                new SimpleWeightedGraph<>(vSupplier, edgeSupplier);
+                new WeightedMultigraph<>(vSupplier, edgeSupplier);
         // Create the CompleteGraphGenerator object
 //        CompleteGraphGenerator<String, DefaultWeightedEdge> completeGenerator =
 //                new CompleteGraphGenerator<>(SIZE);

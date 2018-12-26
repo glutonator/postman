@@ -23,6 +23,7 @@ public class Main {
 //        Postman postman = new Postman();
 //        postman.func222();
         Postman postman = new Postman(4);
-        postman.alg();
+//        postman.alg();
+        postman.auxiliaryAlg();
     }
 }
