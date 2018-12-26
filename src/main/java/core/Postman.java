@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class Postman {
@@ -26,6 +27,7 @@ public class Postman {
 
     public Postman(int size) throws IOException {
         CustomGraph customGraph = new CustomGraph();
+        //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
         this.graph = customGraph.createComleteGraphUndireted(size);
         this.size = size;
 //        this.weightsMap = new HashMap<>(size);
@@ -63,7 +65,7 @@ public class Postman {
             graphDApostrophe.setEdgeWeight(target, source, (c_ji - c_ij) / 2);
         }
         //definiowanie problemu przepływu o minimalnym koszcie
-        Map <String, Integer> demand = createDemandMap(graphD_G);
+        Map<String, Integer> demand = createDemandMap(graphD_G);
 
         Function<String, Integer> nodesFunction = demand::get;
         Function<LabelEdge, Integer> edgesFunction = x -> {
@@ -79,7 +81,7 @@ public class Postman {
         CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
         MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows = costFlow.getMinimumCostFlow(problem);
 
-        Map <LabelEdge,Double> optimalFlowMap = flows.getFlowMap();
+        Map<LabelEdge, Double> optimalFlowMap = flows.getFlowMap();
         System.out.println("**************************");
         System.out.println(optimalFlowMap);
 
@@ -91,29 +93,57 @@ public class Postman {
             graphDApostrophe2.addVertex(vertex);
         }
         //populate edges
-        for(LabelEdge edge : optimalFlowMap.keySet()) {
-            if(edge.getLabel().contains("\'")) {
-                Double flow =  optimalFlowMap.get(edge);
+        for (LabelEdge edge : optimalFlowMap.keySet()) {
+            if (edge.getLabel().contains("\'")) {
+                Double flow = optimalFlowMap.get(edge);
 
                 //ekstrachowanie nazw wierchoków z etykiety
                 //tmpLabel- konwersja - (v3,v0)' -> v3,v0
-                String tmpLabel = edge.getLabel().substring(1,edge.getLabel().length()-2);
-                System.out.println(tmpLabel);
+                String tmpLabel = edge.getLabel().substring(1, edge.getLabel().length() - 2);
+                System.out.println(tmpLabel+"---"+flow.toString());
                 //ekstrakcja początku i końca krawędzi
                 String[] target_source = tmpLabel.split(",");
                 //nadanie przejrzystych nazw zmiennych - target -> j && source -> i
                 String target = target_source[0];
                 String source = target_source[1];
-                System.out.println(target);
-                System.out.println(source);
-                if(flow==0) {
-                    String label_ij = "("+source+","+target+")";
-                    optimalFlowMap.get(label_ij);
+
+                if (flow.equals(0.0)) {
+                    System.out.println("if");
+                    String label_ij = "(" + source + "," + target + ")";
+                    LabelEdge labelEdge=null;
+                    Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(source,target);
+                    for(LabelEdge tmpLabelEdge:setOfEdges) {
+                        if (tmpLabelEdge.getLabel().equals(label_ij)) {
+                            labelEdge=tmpLabelEdge;
+                            break;
+                        }
+                    }
+                    Double numberOfNewEdges = flows.getFlow(labelEdge);
+                    System.out.println(setOfEdges + numberOfNewEdges.toString());
+                    for (int i = 0; i < numberOfNewEdges; i++) {
+                        graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
+                        graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
+                        System.out.println(i);
+                    }
                     //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
-                }
-                else {
-                    String label_ji = "("+target+","+source+")";
-                    optimalFlowMap.get(label_ji);
+                } else {
+                    System.out.println("else");
+                    String label_ji = "(" + target + "," + source + ")";
+                    LabelEdge labelEdge=null;
+                    Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(target,source);
+                    for(LabelEdge tmpLabelEdge:setOfEdges) {
+                        if (tmpLabelEdge.getLabel().equals(label_ji)) {
+                            labelEdge=tmpLabelEdge;
+                            break;
+                        }
+                    }
+                    Double numberOfNewEdges = flows.getFlow(labelEdge);
+                    System.out.println(setOfEdges + numberOfNewEdges.toString());
+                    for (int i = 0; i < numberOfNewEdges; i++) {
+                        graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
+                        graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
+                        System.out.println(i);
+                    }
                     //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
 
                 }
@@ -130,7 +160,7 @@ public class Postman {
             int d_i = graphD_G.outDegreeOf(vertex) - graphD_G.inDegreeOf(vertex);
             demand.put(vertex, d_i);
         }
-        System.out.println("demand: "+demand);
+        System.out.println("demand: " + demand);
         return demand;
     }
 
