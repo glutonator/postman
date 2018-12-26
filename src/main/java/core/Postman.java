@@ -100,7 +100,7 @@ public class Postman {
                 //ekstrachowanie nazw wierchoków z etykiety
                 //tmpLabel- konwersja - (v3,v0)' -> v3,v0
                 String tmpLabel = edge.getLabel().substring(1, edge.getLabel().length() - 2);
-                System.out.println(tmpLabel+"---"+flow.toString());
+                System.out.println(tmpLabel + "---" + flow.toString());
                 //ekstrakcja początku i końca krawędzi
                 String[] target_source = tmpLabel.split(",");
                 //nadanie przejrzystych nazw zmiennych - target -> j && source -> i
@@ -109,47 +109,42 @@ public class Postman {
 
                 if (flow.equals(0.0)) {
                     System.out.println("if");
-                    String label_ij = "(" + source + "," + target + ")";
-                    LabelEdge labelEdge=null;
-                    Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(source,target);
-                    for(LabelEdge tmpLabelEdge:setOfEdges) {
-                        if (tmpLabelEdge.getLabel().equals(label_ij)) {
-                            labelEdge=tmpLabelEdge;
-                            break;
-                        }
-                    }
-                    Double numberOfNewEdges = flows.getFlow(labelEdge);
-                    System.out.println(setOfEdges + numberOfNewEdges.toString());
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source);
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
                         System.out.println(i);
                     }
-                    //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
                 } else {
                     System.out.println("else");
-                    String label_ji = "(" + target + "," + source + ")";
-                    LabelEdge labelEdge=null;
-                    Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(target,source);
-                    for(LabelEdge tmpLabelEdge:setOfEdges) {
-                        if (tmpLabelEdge.getLabel().equals(label_ji)) {
-                            labelEdge=tmpLabelEdge;
-                            break;
-                        }
-                    }
-                    Double numberOfNewEdges = flows.getFlow(labelEdge);
-                    System.out.println(setOfEdges + numberOfNewEdges.toString());
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target);
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
                         System.out.println(i);
                     }
-                    //TODO: graphDApostrophe2 dodwanie krawędzi z odpowiednią wagą
-
                 }
             }
         }
+        CustomGraph customGraph = new CustomGraph();
+        customGraph.printGraph(graphDApostrophe2);
+        customGraph.printGraphEdges(graphDApostrophe2);
 
+    }
+
+    public Double getNumberOfNewEdges(Graph<String, LabelEdge> graphDApostrophe, MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows, String target, String source) {
+        String label_ij = "(" + source + "," + target + ")";
+        LabelEdge labelEdge = null;
+        Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(source, target);
+        for (LabelEdge tmpLabelEdge : setOfEdges) {
+            if (tmpLabelEdge.getLabel().equals(label_ij)) {
+                labelEdge = tmpLabelEdge;
+                break;
+            }
+        }
+        Double numberOfNewEdges = flows.getFlow(labelEdge);
+        System.out.println(setOfEdges + numberOfNewEdges.toString());
+        return numberOfNewEdges;
     }
 
     public Map createDemandMap(Graph graphD_G) {
