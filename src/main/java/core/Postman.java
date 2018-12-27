@@ -16,18 +16,19 @@ import java.util.function.Function;
 
 public class Postman {
     private Graph<String, CustomEdge> graph;
-    //    private Map<Integer, Pair<Double, Double>> weightsMap;
-    private int size;
+//    private int size;
+    public static Double INF_WEIGHT=999.0;
 
     public Postman() {
     }
 
-    public Postman(int size) throws IOException {
+    public Postman(Graph createdGraph) throws IOException {
         CustomGraph customGraph = new CustomGraph();
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
 //        this.graph = customGraph.createComleteGraphUndireted(size);
-        this.graph = SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge();
-        this.size = size;
+//        this.graph = SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge();
+        this.graph = createdGraph;
+//        this.size = size;
         System.out.println(toString());
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
@@ -41,8 +42,6 @@ public class Postman {
             System.out.println("Conversion to Eulerian");
 
             CustomGraphOld customGraphOld = new CustomGraphOld();
-            //todo: w przypdaku gdy jest grafem eulera opuscić tą funckję
-            //todo: trzeba wziac poprawkę, że na wyjsćiu tej funckji będzie multigraf
 
             //nadanie krawędziom grafu G wag - nie używane sa do niczego innego !!!
             for (CustomEdge edge : this.graph.edgeSet()) {
@@ -83,7 +82,7 @@ public class Postman {
     }
 
     public void alg() throws IOException {
-        //todo: zmienna graf używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
+        //todo: zmienna graph używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
         Graph<String, DefaultWeightedEdge> graphD_G = createGraphD_G();
 
         Graph<String, LabelEdge> graphDApostrophe =
@@ -208,7 +207,7 @@ public class Postman {
 
     public Map<String, Integer> createDemandMap(Graph<String, DefaultWeightedEdge> graphD_G) {
         Iterator<String> iter = new DepthFirstIterator<>(graphD_G);
-        Map<String, Integer> demand = new HashMap<>(this.size);
+        Map<String, Integer> demand = new HashMap<>(this.graph.vertexSet().size());
         while (iter.hasNext()) {
             String vertex = iter.next();
             // demand przeciwny znak - tak jest w algorytmie
@@ -238,129 +237,6 @@ public class Postman {
             }
         }
         return graphD_G;
-    }
-
-    public void func() {
-        final int qwerty = 0;
-        CustomGraphOld customGraphOld = new CustomGraphOld();
-        Graph graph = customGraphOld.createDirectedGraph();
-        Function<String, Integer> nodesFunction = x -> {
-            if (x.equals("v1")) {
-                System.out.println(x);
-                System.out.println("aaaaaaaaaa");
-                return -5;
-            } else if (x.equals("v2")) {
-                System.out.println(x);
-                System.out.println("bbbbbbbbbb");
-                return 5;
-            } else {
-                System.out.println(x);
-                System.out.println("ccccccccccc");
-                return 0;
-            }
-
-        };
-        nodesFunction.apply("(v1,v3)");
-        Function<DefaultWeightedEdge, Integer> edgesFunction = x -> 10;
-//        MinimumCostFlowProblem.MinimumCostFlowProblemImpl problem =
-        MinimumCostFlowProblem problem =
-                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl(graph, nodesFunction, edgesFunction);
-        System.out.println("**************************");
-        System.out.println(problem.getGraph());
-        System.out.println(problem.getNodeSupply());
-        System.out.println(problem.getArcCapacityLowerBounds());
-        System.out.println(problem.getArcCapacityUpperBounds());
-
-//        MinimumCostFlowAlgorithm.MinimumCostFlowImpl minimumCostFlowAlgorithm = new MinimumCostFlowAlgorithm.MinimumCostFlowImpl()
-//        CapacityScalingMinimumCostFlow()
-//        Map<DefaultWeightedEdge,Double> flowMap = new HashMap<>();
-        //todo: tutaj jest coś bradzo nie tak, może by użyć tej drugiej funckji CapacityScalingMinimumCostFlow
-//        MinimumCostFlowAlgorithm rrrr= new MinimumCostFlowAlgorithm.MinimumCostFlowImpl(5.0,flowMap);
-//        rrrr.getMinimumCostFlow()
-
-
-//        MinimumCostFlowAlgorithm.MinimumCostFlow
-
-//        CapacityScalingMinimumCostFlow.
-        //to jest dużo lepsze podejście bo coś dizała
-        CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
-//        costFlow.getFlowMap();
-        MinimumCostFlowAlgorithm.MinimumCostFlow<DefaultWeightedEdge> flows = costFlow.getMinimumCostFlow(problem);
-
-        System.out.println("**************************");
-        System.out.println(flows.getFlowMap());
-
-    }
-
-    public void func222() {
-        final int qwerty = 0;
-        CustomGraphOld customGraphOld = new CustomGraphOld();
-        Graph graph = customGraphOld.createDirectedGraphFromBookMultigraphCustomEdge();
-        Function<String, Integer> nodesFunction = x -> {
-            if (x.equals("t")) {
-                System.out.println(x);
-                System.out.println("aaaaaaaaaa");
-                return -5;
-            } else if (x.equals("s")) {
-                System.out.println(x);
-                System.out.println("bbbbbbbbbb");
-                return 5;
-            } else {
-                System.out.println(x);
-                System.out.println("ccccccccccc");
-                return 0;
-            }
-
-        };
-//        Function<DefaultWeightedEdge, Integer> edgesFunction = x -> {
-        Function<CustomEdge, Integer> edgesFunction = x -> {
-            if (x.toString().equals("(s : v1)")) {
-                System.out.println(x.toString());
-                return 4;
-            } else if (x.toString().equals("(s : v2)")) {
-                System.out.println(x.toString());
-                return 5;
-            } else if (x.toString().equals("(v1 : v3)")) {
-                System.out.println(x.toString());
-                return 5;
-            } else if (x.toString().equals("(v2 : v4)")) {
-                System.out.println(x.toString());
-                return 2;
-            } else if (x.toString().equals("(v1 : v2)")) {
-                System.out.println(x.toString());
-                return 2;
-            } else if (x.toString().equals("(v4 : v3)")) {
-                System.out.println(x.toString());
-                return 3;
-            } else if (x.toString().equals("(v3 : t)")) {
-                System.out.println(x.toString());
-                return 5;
-            } else if (x.toString().equals("(v4 : t)")) {
-                System.out.println(x.toString());
-                return 3;
-            } else {
-                System.out.println(x.toString());
-                System.out.println("wwwwwwwwwww");
-                return 10;
-
-            }
-        };
-
-//        MinimumCostFlowProblem.MinimumCostFlowProblemImpl problem =
-        MinimumCostFlowProblem problem =
-                new MinimumCostFlowProblem.MinimumCostFlowProblemImpl(graph, nodesFunction, edgesFunction);
-        System.out.println("**************************");
-        System.out.println(problem.getGraph());
-        System.out.println(problem.getNodeSupply());
-        System.out.println(problem.getArcCapacityLowerBounds());
-        System.out.println(problem.getArcCapacityUpperBounds());
-
-        CapacityScalingMinimumCostFlow costFlow = new CapacityScalingMinimumCostFlow();
-        MinimumCostFlowAlgorithm.MinimumCostFlow<DefaultWeightedEdge> flows = costFlow.getMinimumCostFlow(problem);
-
-        System.out.println("**************************");
-        System.out.println(flows.getFlowMap());
-
     }
 
 

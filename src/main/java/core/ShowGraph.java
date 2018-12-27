@@ -27,7 +27,6 @@ public class ShowGraph {
         File imgFile = new File("graph.png");
         ImageIO.write(image, "PNG", imgFile);
 
-//        assertTrue(imgFile.exists());
     }
     public static void printGraph(Graph graph) {
         // Print out the graph to be sure it's really complete

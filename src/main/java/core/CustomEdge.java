@@ -1,5 +1,6 @@
 package core;
 
+import javafx.geometry.Pos;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -19,11 +20,13 @@ public class CustomEdge extends DefaultWeightedEdge {
 
 
     }
+
     public CustomEdge(String label, Double weight1) {
         this.label = label;
         this.weight1 = weight1;
-        this.weight2 = 999.0;
+        this.weight2 = Postman.INF_WEIGHT;
     }
+
     public CustomEdge(String label, Double weight1, Double weight2) {
         this.label = label;
         this.weight1 = weight1;
@@ -52,6 +55,11 @@ public class CustomEdge extends DefaultWeightedEdge {
             // c_ij > c_ji
             return false;
         }
+    }
+
+    public String sourceAndTargetString() {
+        return
+                "(" + this.getSource() + " : " + this.getTarget() + ")";
     }
 
     @Override

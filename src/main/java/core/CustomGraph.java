@@ -7,10 +7,10 @@ import org.jgrapht.graph.WeightedMultigraph;
 import java.util.function.Supplier;
 
 public class CustomGraph {
-    private Integer TMP = 0;
+    static private Integer TMP = 0;
 
 
-    public Graph createComleteGraphUndireted(int size) {
+    public static Graph createComleteGraphUndireted(int size) {
 //        int SIZE = 4;
         int SIZE = size;
 
