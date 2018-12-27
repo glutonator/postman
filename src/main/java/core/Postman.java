@@ -127,6 +127,7 @@ public class Postman {
             graphDApostrophe.addVertex(vertex);
         }
         //populate edges
+        //unikalny numer umożliwiający rozróznianie krawędzi !!! Umożliwia rozróżnianie krawędzi równoległych o tych samych wagach!!!
         int uniqueNumber = 0;
         for (CustomEdge edge : this.graph.edgeSet()) {
             String source = this.graph.getEdgeSource(edge);
@@ -189,8 +190,7 @@ public class Postman {
                 Double flow = optimalFlowMap.get(edge);
                 //TODO: Tutaj label się zwali jak dodam kraœędezie równoległe
                 //ekstrachowanie nazw wierchoków z etykiety
-                //tmpLabel- konwersja - (v3,v0)' -> v3,v0
-//                String tmpLabel = edge.getLabel().split("\\.", 2)[0];
+                //tmpLabel- konwersja - (v3,v0)'.xxx. -> v3,v0 oraz .xxx. //.xxx. służy do rozrózniania krawędzi równoległych
                 String[] tmpLabel = edge.getLabel().split("\\.", 2);
                 String append = "." + tmpLabel[1];
                 String tmpLabel2 = tmpLabel[0].substring(1, tmpLabel[0].length() - 2);
@@ -207,11 +207,9 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-//                        boolean tmp = graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
                         LabelEdge labelEdge = new LabelEdge(source+","+target);
                         boolean tmp = graphDApostrophe2.addEdge(source, target, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight1());
-//                        graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");
@@ -222,11 +220,9 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-//                        boolean tmp = graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
                         LabelEdge labelEdge = new LabelEdge(target+","+source );
                         boolean tmp = graphDApostrophe2.addEdge(target, source, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight2());
-//                        graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");
