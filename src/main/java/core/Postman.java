@@ -207,8 +207,11 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-                        boolean tmp = graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
-                        graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
+//                        boolean tmp = graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
+                        LabelEdge labelEdge = new LabelEdge(source+","+target);
+                        boolean tmp = graphDApostrophe2.addEdge(source, target, labelEdge);
+                        graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight1());
+//                        graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");
@@ -219,8 +222,11 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-                        boolean tmp = graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
-                        graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
+//                        boolean tmp = graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
+                        LabelEdge labelEdge = new LabelEdge(target+","+source );
+                        boolean tmp = graphDApostrophe2.addEdge(target, source, labelEdge);
+                        graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight2());
+//                        graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");
