@@ -1,5 +1,6 @@
 package core;
 
+import javafx.geometry.Pos;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
@@ -16,21 +17,53 @@ import java.util.function.Function;
 
 public class Postman {
     private Graph<String, CustomEdge> graph;
-//    private int size;
-    public static Double INF_WEIGHT=999.0;
+    //    private int size;
+    public static Double INF_WEIGHT = 999.0;
+    public static  Integer INF_CAPACITY = 999;
 
     public Postman() {
     }
 
-    public Postman(Graph createdGraph) throws IOException {
-        CustomGraph customGraph = new CustomGraph();
+    public Postman(Graph createdGraph,int percent) throws Exception {
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
-//        this.graph = customGraph.createComleteGraphUndireted(size);
-//        this.graph = SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge();
-        this.graph = createdGraph;
-//        this.size = size;
+        if(percent<0 || percent >100) {
+            throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
+        }
+        this.graph = createOneDirectionRoads(createdGraph, percent);
         System.out.println(toString());
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
+    }
+
+    public Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent) throws Exception {
+        if(percent<0 || percent >100) {
+            throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
+        }
+        int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
+        System.out.println("numberOfOneDirectionRoads: " + numberOfOneDirectionRoads);
+        if (numberOfOneDirectionRoads > 0) {
+            int[] arrayOfInfEdges = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
+
+            int i = 0;
+            int count = 0;
+            for (CustomEdge edge : graph.edgeSet()) {
+                if (arrayOfInfEdges[i] == count) {
+                    edge.setWeight2(Postman.INF_WEIGHT);
+                    i++;
+                }
+                count++;
+                if (arrayOfInfEdges.length <= i) {
+                    break;
+                }
+            }
+        }
+        return graph;
+    }
+
+    public int[] genereteRandCombiantion(int numeberOfNumbers, int limitNumbers) {
+        Integer[] indices = new Integer[numeberOfNumbers];
+        Arrays.setAll(indices, i -> i);
+        Collections.shuffle(Arrays.asList(indices));
+        return Arrays.stream(indices).mapToInt(Integer::intValue).limit(limitNumbers).sorted().toArray();
     }
 
     public void auxiliaryAlg() {
@@ -127,8 +160,7 @@ public class Postman {
             if (x.getLabel().contains("\'")) {
                 return 2;
             }
-            //todo zminić na nieskończoność
-            return 10;
+            return Postman.INF_CAPACITY;
         };
 
         MinimumCostFlowProblem<String, LabelEdge> problem =
@@ -181,13 +213,12 @@ public class Postman {
                 }
             }
         }
-        CustomGraphOld customGraphOld = new CustomGraphOld();
         ShowGraph.printGraph(graphDApostrophe2);
         ShowGraph.printGraphEdges(graphDApostrophe2);
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graphDApostrophe2);
         System.out.println(GraphTests.isEulerian(graphDApostrophe2));
 
-
+        testIfInfEdgesAreUsed(graphDApostrophe2);
     }
 
     public Double getNumberOfNewEdges(Graph<String, LabelEdge> graphDApostrophe, MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows, String target, String source) {
@@ -237,6 +268,18 @@ public class Postman {
             }
         }
         return graphD_G;
+    }
+
+    public int testIfInfEdgesAreUsed(Graph<String, LabelEdge> graphDApostrophe2) {
+        int count = 0;
+        for (LabelEdge edge : graphDApostrophe2.edgeSet()) {
+            Double edgeWeight = graphDApostrophe2.getEdgeWeight(edge);
+            if (edgeWeight.equals(Postman.INF_WEIGHT)) {
+                count++;
+            }
+        }
+        System.out.println("Liczba użytych karawędzi o nieskończonej wadze: " + count);
+        return count;
     }
 
 

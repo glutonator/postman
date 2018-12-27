@@ -20,6 +20,12 @@ public class CustomEdge extends DefaultWeightedEdge {
 
 
     }
+    public CustomEdge(String label) {
+        double random = ThreadLocalRandom.current().nextInt(2, 10);
+        this.label = label;
+        this.weight1 = random;
+        this.weight2 = random;
+    }
 
     public CustomEdge(String label, Double weight1) {
         this.label = label;
@@ -45,6 +51,18 @@ public class CustomEdge extends DefaultWeightedEdge {
     // c_ji
     public Double getWeight2() {
         return weight2;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setWeight1(Double weight1) {
+        this.weight1 = weight1;
+    }
+
+    public void setWeight2(Double weight2) {
+        this.weight2 = weight2;
     }
 
     public boolean checkWhichWeightIsBigger() {

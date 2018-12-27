@@ -10,16 +10,17 @@ import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.util.SupplierUtil;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
 public class Main {
-    public static void main(String... args) throws IOException {
-//        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(4));
+    public static void main(String... args) throws Exception {
+        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(3),100);
 //        Postman postman = new Postman(SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge());
-//
-//        postman.auxiliaryAlg();
-//        postman.alg();
+        postman.auxiliaryAlg();
+        postman.alg();
 
     }
 }

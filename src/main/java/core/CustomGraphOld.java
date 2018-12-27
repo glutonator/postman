@@ -85,7 +85,6 @@ public class CustomGraphOld {
 //
 //        Supplier<CustomEdge> edgeSupplier = new Supplier<CustomEdge>() {
 //            private int id = TMP;
-//            //TODO: zrobić randa dla wartości wag, trzeba też uwzględnić stosuenk liczby dróg jednokiernkowych
 //            @Override
 //            public CustomEdge get() {
 //                return new CustomEdge("e"+id++,10.0,100.0);
