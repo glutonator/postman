@@ -18,15 +18,16 @@ import java.util.function.Function;
 public class Postman {
     private Graph<String, CustomEdge> graph;
     //    private int size;
-    public static Double INF_WEIGHT = 999.0;
-    public static  Integer INF_CAPACITY = 999;
+    public static Double INF_WEIGHT = 100.0;
+    //    public static  Integer INF_CAPACITY = 999;
+    public static Integer INF_CAPACITY = CapacityScalingMinimumCostFlow.CAP_INF;
 
     public Postman() {
     }
 
-    public Postman(Graph createdGraph,int percent) throws Exception {
+    public Postman(Graph createdGraph, int percent) throws Exception {
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
-        if(percent<0 || percent >100) {
+        if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
         this.graph = createOneDirectionRoads(createdGraph, percent);
@@ -35,7 +36,7 @@ public class Postman {
     }
 
     public Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent) throws Exception {
-        if(percent<0 || percent >100) {
+        if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
         int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
@@ -126,19 +127,21 @@ public class Postman {
             graphDApostrophe.addVertex(vertex);
         }
         //populate edges
+        int uniqueNumber = 0;
         for (CustomEdge edge : this.graph.edgeSet()) {
             String source = this.graph.getEdgeSource(edge);
             String target = this.graph.getEdgeTarget(edge);
             Double c_ij = edge.getWeight1();
             Double c_ji = edge.getWeight2();
+            String uniqueAppend = new StringBuilder().append(".").append(uniqueNumber).append(".").toString();
             //(i,j)
-            graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")"));
+            graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")" + uniqueAppend));
             graphDApostrophe.setEdgeWeight(source, target, c_ij);
             //(j,i)
-            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")"));
+            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")" + uniqueAppend));
             graphDApostrophe.setEdgeWeight(target, source, c_ji);
             //(j,i)'
-            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")'"));
+            graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")'" + uniqueAppend));
             Set<LabelEdge> allEdges = graphDApostrophe.getAllEdges(target, source);
             for (LabelEdge edge1 : allEdges) {
                 if (edge1.getLabel().equals("(" + target + "," + source + ")'")) {
@@ -146,6 +149,7 @@ public class Postman {
                     break;
                 }
             }
+            uniqueNumber++;
         }
         System.out.println("*************************************************");
         System.out.println("graphDApostrophe:");
@@ -183,32 +187,43 @@ public class Postman {
         for (LabelEdge edge : optimalFlowMap.keySet()) {
             if (edge.getLabel().contains("\'")) {
                 Double flow = optimalFlowMap.get(edge);
-
+                //TODO: Tutaj label się zwali jak dodam kraœędezie równoległe
                 //ekstrachowanie nazw wierchoków z etykiety
                 //tmpLabel- konwersja - (v3,v0)' -> v3,v0
-                String tmpLabel = edge.getLabel().substring(1, edge.getLabel().length() - 2);
-                System.out.println(tmpLabel + "---" + flow.toString());
+//                String tmpLabel = edge.getLabel().split("\\.", 2)[0];
+                String[] tmpLabel = edge.getLabel().split("\\.", 2);
+                String append = "." + tmpLabel[1];
+                String tmpLabel2 = tmpLabel[0].substring(1, tmpLabel[0].length() - 2);
+                System.out.println(tmpLabel2 + "---" + flow.toString());
                 //ekstrakcja początku i końca krawędzi
-                String[] target_source = tmpLabel.split(",");
+                String[] target_source = tmpLabel2.split(",");
                 //nadanie przejrzystych nazw zmiennych - target -> j && source -> i
                 String target = target_source[0];
                 String source = target_source[1];
 
+                //TODO:wagi dodawnaych kraœedzi chyba są źle, nadawne są tylko pierwszej karœedzi
                 if (flow.equals(0.0)) {
                     System.out.println("if");
-                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source) + 1;
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-                        graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
+                        System.out.println("_________________________________________________");
+                        boolean tmp = graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
                         System.out.println(i);
+                        System.out.println("tmp:" + tmp);
+                        System.out.println("_________________________________________________");
+
                     }
                 } else {
                     System.out.println("else");
-                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target) + 1;
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-                        graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
+                        System.out.println("_________________________________________________");
+                        boolean tmp = graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
                         System.out.println(i);
+                        System.out.println("tmp:" + tmp);
+                        System.out.println("_________________________________________________");
                     }
                 }
             }
@@ -221,8 +236,10 @@ public class Postman {
         testIfInfEdgesAreUsed(graphDApostrophe2);
     }
 
-    public Double getNumberOfNewEdges(Graph<String, LabelEdge> graphDApostrophe, MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows, String target, String source) {
-        String label_ij = "(" + source + "," + target + ")";
+    public Double getNumberOfNewEdges(Graph<String, LabelEdge> graphDApostrophe,
+                                      MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows,
+                                      String target, String source, String append) {
+        String label_ij = "(" + source + "," + target + ")" + append;
         LabelEdge labelEdge = null;
         Set<LabelEdge> setOfEdges = graphDApostrophe.getAllEdges(source, target);
         for (LabelEdge tmpLabelEdge : setOfEdges) {

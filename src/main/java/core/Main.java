@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class Main {
     public static void main(String... args) throws Exception {
-        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(3),100);
+        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(4),100);
 //        Postman postman = new Postman(SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge());
         postman.auxiliaryAlg();
         postman.alg();

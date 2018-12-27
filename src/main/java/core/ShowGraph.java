@@ -43,7 +43,8 @@ public class ShowGraph {
     public static void printGraphEdges(Graph graph) {
         System.out.println("****************************************************");
         System.out.print(String.join(",", graph.vertexSet()));
-        System.out.println("---count: " + graph.vertexSet().size());
+        System.out.println("---countNodes: " + graph.vertexSet().size());
+        System.out.println("---countEdges: " + graph.edgeSet().size());
         for (Object e : graph.edgeSet()) {
             System.out.println(e.toString() + " --- " + graph.getEdgeWeight(e));
         }

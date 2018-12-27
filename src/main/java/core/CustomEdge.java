@@ -10,6 +10,7 @@ public class CustomEdge extends DefaultWeightedEdge {
     private String label;
     private Double weight1;
     private Double weight2;
+    public static Double iter =12.0;
 
     public CustomEdge() {
         double random = ThreadLocalRandom.current().nextInt(2, 10);
@@ -23,8 +24,11 @@ public class CustomEdge extends DefaultWeightedEdge {
     public CustomEdge(String label) {
         double random = ThreadLocalRandom.current().nextInt(2, 10);
         this.label = label;
-        this.weight1 = random;
-        this.weight2 = random;
+//        this.weight1 = random;
+        this.weight1 = iter;
+        iter=iter-1;
+//        this.weight2 = random;
+        this.weight2 = Postman.INF_WEIGHT;
     }
 
     public CustomEdge(String label, Double weight1) {

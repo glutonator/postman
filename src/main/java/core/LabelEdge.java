@@ -13,15 +13,16 @@ public class LabelEdge extends DefaultWeightedEdge {
         return label;
     }
 
-//    @Override
-//    public String toString() {
-//        return "LabelEdge{" +
-//                "label='" + label + '\'' +
-//                '}';
-//    }
     @Override
     public String toString() {
-        return
-                "(" + this.getSource() + " : " + this.getTarget() + ")";
+//        return "LabelEdge{" +
+        return      "{label='" + label + '\'' +
+                "(" + this.getSource() + " : " + this.getTarget() + ")"+
+                '}';
     }
+//    @Override
+//    public String toString() {
+//        return
+//                "(" + this.getSource() + " : " + this.getTarget() + ")";
+//    }
 }
