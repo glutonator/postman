@@ -14,16 +14,16 @@ import java.util.Iterator;
 import java.util.function.Supplier;
 
 public class Main {
-//todo: coś jest nie tak jak mzianiam się na graf z wagami
     public static void main(String... args) throws IOException {
-//        CustomGraph customGraph = new CustomGraph();
+//        CustomGraphOld customGraph = new CustomGraphOld();
 ////        customGraph.createGraphSimpleGraph();
 ////        customGraph.createDirectedGraph();
 //        customGraph.createDirectedGraphComplete();
 //        Postman postman = new Postman();
 //        postman.func222();
         Postman postman = new Postman(4);
-//        postman.alg();
         postman.auxiliaryAlg();
+        postman.alg();
+
     }
 }

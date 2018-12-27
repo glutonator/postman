@@ -25,18 +25,22 @@ public class Postman {
     public Postman(int size) throws IOException {
         CustomGraph customGraph = new CustomGraph();
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
-        this.graph = customGraph.createComleteGraphUndireted(size);
+//        this.graph = customGraph.createComleteGraphUndireted(size);
+        this.graph = SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge();
         this.size = size;
         System.out.println(toString());
-        customGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
+        ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
 
     public void auxiliaryAlg() {
-        if(!GraphTests.isEulerian(this.graph)) {
+        System.out.println("*************************************************");
+        System.out.println("Pomocniczy algorytm początek");
+        System.out.println("*************************************************");
+        if (!GraphTests.isEulerian(this.graph)) {
             System.out.println("Graph is not Eulerian");
             System.out.println("Conversion to Eulerian");
 
-            CustomGraph customGraph = new CustomGraph();
+            CustomGraphOld customGraphOld = new CustomGraphOld();
             //todo: w przypdaku gdy jest grafem eulera opuscić tą funckję
             //todo: trzeba wziac poprawkę, że na wyjsćiu tej funckji będzie multigraf
 
@@ -57,8 +61,8 @@ public class Postman {
             }
 
             AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
-            customGraph.printGraphEdges(asSubgraph);
-            customGraph.printGraph(asSubgraph);
+            ShowGraph.printGraphEdges(asSubgraph);
+            ShowGraph.printGraph(asSubgraph);
             KolmogorovMinimumWeightPerfectMatching<String, CustomEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(asSubgraph);
             MatchingAlgorithm.Matching<String, CustomEdge> matching1 = matching.getMatching();
             for (CustomEdge edge : matching1.getEdges()) {
@@ -67,16 +71,18 @@ public class Postman {
                 System.out.println(testIfEdgeAdded);
             }
             System.out.println(matching1);
-            customGraph.printGraphEdges(this.graph);
-            System.out.println("Graph is Eulerian: "+ GraphTests.isEulerian(this.graph));
+            ShowGraph.printGraphEdges(this.graph);
+            System.out.println("Graph is Eulerian: " + GraphTests.isEulerian(this.graph));
 
-        }
-        else {
+        } else {
             System.out.println("Graph is Eulerian");
         }
+        System.out.println("*************************************************");
+        System.out.println("Pomocniczy algorytm koniec");
+        System.out.println("*************************************************");
     }
 
-    public void alg() {
+    public void alg() throws IOException {
         //todo: zmienna graf używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
         Graph<String, DefaultWeightedEdge> graphD_G = createGraphD_G();
 
@@ -92,7 +98,7 @@ public class Postman {
             String source = this.graph.getEdgeSource(edge);
             String target = this.graph.getEdgeTarget(edge);
             Double c_ij = edge.getWeight1();
-            Double c_ji = edge.getWeight1();
+            Double c_ji = edge.getWeight2();
             //(i,j)
             graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")"));
             graphDApostrophe.setEdgeWeight(source, target, c_ij);
@@ -101,8 +107,19 @@ public class Postman {
             graphDApostrophe.setEdgeWeight(target, source, c_ji);
             //(j,i)'
             graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")'"));
-            graphDApostrophe.setEdgeWeight(target, source, (c_ji - c_ij) / 2);
+            Set<LabelEdge> allEdges = graphDApostrophe.getAllEdges(target, source);
+            for (LabelEdge edge1 : allEdges) {
+                if (edge1.getLabel().equals("(" + target + "," + source + ")'")) {
+                    graphDApostrophe.setEdgeWeight(edge1, (c_ji - c_ij) / 2);
+                    break;
+                }
+            }
         }
+        System.out.println("*************************************************");
+        System.out.println("graphDApostrophe:");
+        System.out.println(graphDApostrophe);
+        System.out.println("size: " + graphDApostrophe.edgeSet().size());
+        System.out.println("*************************************************");
         //definiowanie problemu przepływu o minimalnym koszcie
         Map<String, Integer> demand = createDemandMap(graphD_G);
 
@@ -122,7 +139,7 @@ public class Postman {
 
         Map<LabelEdge, Double> optimalFlowMap = flows.getFlowMap();
         System.out.println("**************************");
-        System.out.println(optimalFlowMap);
+        System.out.println("optimalFlowMap: " + optimalFlowMap);
 
         // Tworznie grafu D'' na podstawie optymalnych wartości przepływu
         Graph<String, LabelEdge> graphDApostrophe2 =
@@ -148,7 +165,7 @@ public class Postman {
 
                 if (flow.equals(0.0)) {
                     System.out.println("if");
-                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source);
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         graphDApostrophe2.addEdge(source, target, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(source, target, this.graph.getEdge(source, target).getWeight1());
@@ -156,7 +173,7 @@ public class Postman {
                     }
                 } else {
                     System.out.println("else");
-                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target);
+                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         graphDApostrophe2.addEdge(target, source, new LabelEdge("qqqq"));
                         graphDApostrophe2.setEdgeWeight(target, source, this.graph.getEdge(source, target).getWeight2());
@@ -165,9 +182,12 @@ public class Postman {
                 }
             }
         }
-        CustomGraph customGraph = new CustomGraph();
-        customGraph.printGraph(graphDApostrophe2);
-        customGraph.printGraphEdges(graphDApostrophe2);
+        CustomGraphOld customGraphOld = new CustomGraphOld();
+        ShowGraph.printGraph(graphDApostrophe2);
+        ShowGraph.printGraphEdges(graphDApostrophe2);
+        ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graphDApostrophe2);
+        System.out.println(GraphTests.isEulerian(graphDApostrophe2));
+
 
     }
 
@@ -191,7 +211,8 @@ public class Postman {
         Map<String, Integer> demand = new HashMap<>(this.size);
         while (iter.hasNext()) {
             String vertex = iter.next();
-            int d_i = graphD_G.outDegreeOf(vertex) - graphD_G.inDegreeOf(vertex);
+            // demand przeciwny znak - tak jest w algorytmie
+            int d_i = -(graphD_G.outDegreeOf(vertex) - graphD_G.inDegreeOf(vertex));
             demand.put(vertex, d_i);
         }
         System.out.println("demand: " + demand);
@@ -200,7 +221,7 @@ public class Postman {
 
     public Graph<String, DefaultWeightedEdge> createGraphD_G() {
         Graph<String, DefaultWeightedEdge> graphD_G =
-                new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+                new DirectedWeightedMultigraph<>(DefaultWeightedEdge.class);
 
         //populate nodes
         for (String vertex : this.graph.vertexSet()) {
@@ -221,8 +242,8 @@ public class Postman {
 
     public void func() {
         final int qwerty = 0;
-        CustomGraph customGraph = new CustomGraph();
-        Graph graph = customGraph.createDirectedGraph();
+        CustomGraphOld customGraphOld = new CustomGraphOld();
+        Graph graph = customGraphOld.createDirectedGraph();
         Function<String, Integer> nodesFunction = x -> {
             if (x.equals("v1")) {
                 System.out.println(x);
@@ -273,8 +294,8 @@ public class Postman {
 
     public void func222() {
         final int qwerty = 0;
-        CustomGraph customGraph = new CustomGraph();
-        Graph graph = customGraph.createDirectedGraphFromBookMultigraphCustomEdge();
+        CustomGraphOld customGraphOld = new CustomGraphOld();
+        Graph graph = customGraphOld.createDirectedGraphFromBookMultigraphCustomEdge();
         Function<String, Integer> nodesFunction = x -> {
             if (x.equals("t")) {
                 System.out.println(x);
