@@ -19,7 +19,9 @@ public class Main {
     public static void main(String... args) throws Exception {
         //todo: dla przystej liczby wierchołków od 8 w zwyż jest jakiś błað i czasem generuje się nie graf eulerowski
         //todo: dla nieprzystej liczby jest okey chyba zawsze
-        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(5),100);
+        Postman postman = new Postman(CustomGraph.createComleteGraphUndireted(10),100);
+//        Postman postman = new Postman(CustomGraph.createGraphForCyclicity(111,77),100);
+//        Postman postman = new Postman(CustomGraph.createGraphForDensity(17,0.5),100);
 //        Postman postman = new Postman(SimpleTests.createDirectedGraphFromBookMultigraphCustomEdge());
         postman.auxiliaryAlg();
         postman.alg();

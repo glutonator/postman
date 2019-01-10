@@ -129,6 +129,7 @@ public class Postman {
         //populate edges
         //unikalny numer umożliwiający rozróznianie krawędzi !!! Umożliwia rozróżnianie krawędzi równoległych o tych samych wagach!!!
         int uniqueNumber = 0;
+        int couttmp = 0;
         for (CustomEdge edge : this.graph.edgeSet()) {
             String source = this.graph.getEdgeSource(edge);
             String target = this.graph.getEdgeTarget(edge);
@@ -137,17 +138,37 @@ public class Postman {
             String uniqueAppend = new StringBuilder().append(".").append(uniqueNumber).append(".").toString();
             //(i,j)
             graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")" + uniqueAppend));
-            graphDApostrophe.setEdgeWeight(source, target, c_ij);
+            //******
+            Set<LabelEdge> allEdgesOne = graphDApostrophe.getAllEdges(source, target);
+            for (LabelEdge edge1 : allEdgesOne) {
+                if (edge1.getLabel().equals("(" + source + "," + target + ")" + uniqueAppend)) {
+                    graphDApostrophe.setEdgeWeight(edge1, c_ij);
+                }
+            }
+            //******
+
             //(j,i)
             graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")" + uniqueAppend));
-            graphDApostrophe.setEdgeWeight(target, source, c_ji);
+            //******
+            Set<LabelEdge> allEdgesTwo = graphDApostrophe.getAllEdges(target, source);
+            for (LabelEdge edge1 : allEdgesTwo) {
+                if (edge1.getLabel().equals("(" + target + "," + source + ")" + uniqueAppend)) {
+                    graphDApostrophe.setEdgeWeight(edge1, c_ji);
+                }
+            }
+            //******
+
             //(j,i)'
             graphDApostrophe.addEdge(target, source, new LabelEdge("(" + target + "," + source + ")'" + uniqueAppend));
-            Set<LabelEdge> allEdges = graphDApostrophe.getAllEdges(target, source);
-            for (LabelEdge edge1 : allEdges) {
-                if (edge1.getLabel().equals("(" + target + "," + source + ")'")) {
+            Set<LabelEdge> allEdgesThree = graphDApostrophe.getAllEdges(target, source);
+            for (LabelEdge edge1 : allEdgesThree) {
+                if (edge1.getLabel().equals("(" + target + "," + source + ")'" + uniqueAppend)) {
                     graphDApostrophe.setEdgeWeight(edge1, (c_ji - c_ij) / 2);
-                    break;
+//                    System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+//                    System.out.println(edge1);
+//                    System.out.println(couttmp);
+                    couttmp++;
+//                    break;
                 }
             }
             uniqueNumber++;
@@ -207,9 +228,9 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-                        LabelEdge labelEdge = new LabelEdge(source+","+target);
+                        LabelEdge labelEdge = new LabelEdge(source + "," + target);
                         boolean tmp = graphDApostrophe2.addEdge(source, target, labelEdge);
-                        graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight1());
+                        graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight1());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");
@@ -220,9 +241,9 @@ public class Postman {
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
                         System.out.println("_________________________________________________");
-                        LabelEdge labelEdge = new LabelEdge(target+","+source );
+                        LabelEdge labelEdge = new LabelEdge(target + "," + source);
                         boolean tmp = graphDApostrophe2.addEdge(target, source, labelEdge);
-                        graphDApostrophe2.setEdgeWeight(labelEdge,this.graph.getEdge(source, target).getWeight2());
+                        graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight2());
                         System.out.println(i);
                         System.out.println("tmp:" + tmp);
                         System.out.println("_________________________________________________");

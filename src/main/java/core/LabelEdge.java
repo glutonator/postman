@@ -17,7 +17,7 @@ public class LabelEdge extends DefaultWeightedEdge {
     public String toString() {
 //        return "LabelEdge{" +
         return      "{label='" + label + '\'' +
-                "(" + this.getSource() + " : " + this.getTarget() + ")"+
+                "(" + this.getSource() + " : " + this.getTarget() + ")"+ "w:" +this.getWeight()+
                 '}';
     }
 //    @Override
