@@ -1,6 +1,7 @@
 package core;
 
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
 import org.jgrapht.GraphTests;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
@@ -8,6 +9,7 @@ import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
 import org.jgrapht.alg.interfaces.MatchingAlgorithm;
 import org.jgrapht.alg.interfaces.MinimumCostFlowAlgorithm;
 import org.jgrapht.alg.matching.blossom.v5.KolmogorovMinimumWeightPerfectMatching;
+import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.DepthFirstIterator;
 
@@ -142,17 +144,53 @@ public class Postman {
                     oddVertexes.add(vertex);
                 }
             }
-
-            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
-            ShowGraph.printGraphEdges(asSubgraph);
-            ShowGraph.printGraph(asSubgraph);
-            KolmogorovMinimumWeightPerfectMatching<String, CustomEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(asSubgraph);
-            MatchingAlgorithm.Matching<String, CustomEdge> matching1 = matching.getMatching();
-            for (CustomEdge edge : matching1.getEdges()) {
-                boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
-                        new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
-                System.out.println(testIfEdgeAdded);
+            //TODO: naprawienie matchingu
+            Graph<String, DefaultEdge> tmpgraph = new WeightedMultigraph(DefaultEdge.class);
+            //populate nodes
+            for (String vertex : oddVertexes) {
+                tmpgraph.addVertex(vertex);
             }
+            String[] arrayOddVer = oddVertexes.toArray(new String[oddVertexes.size()]);
+            System.out.println(oddVertexes.toString());
+            FloydWarshallShortestPaths floydWarshallShortestPaths = new FloydWarshallShortestPaths(this.graph);
+            for (int i = 0; i < arrayOddVer.length - 1; i++) {
+                for (int j = i + 1; j < arrayOddVer.length; j++) {
+                    System.out.println("arrayOddVer");
+                    System.out.println(arrayOddVer[i]);
+                    System.out.println(arrayOddVer[j]);
+                    double tmpWeight = floydWarshallShortestPaths.getPathWeight(arrayOddVer[i], arrayOddVer[j]);
+                    DefaultEdge tmpedge = tmpgraph.addEdge(arrayOddVer[i], arrayOddVer[j]);
+                    tmpgraph.setEdgeWeight(tmpedge, tmpWeight);
+                    System.out.println(tmpWeight);
+
+                }
+            }
+
+//            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
+            ShowGraph.printGraphEdges(tmpgraph);
+            ShowGraph.printGraph(tmpgraph);
+            KolmogorovMinimumWeightPerfectMatching<String, DefaultEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(tmpgraph);
+            MatchingAlgorithm.Matching<String, DefaultEdge> matching1 = matching.getMatching();
+            for (DefaultEdge edge1 : matching1.getEdges()) {
+                GraphPath path = floydWarshallShortestPaths.getPath(tmpgraph.getEdgeSource(edge1), tmpgraph.getEdgeTarget(edge1));
+                List<CustomEdge> edgeList = path.getEdgeList();
+                for (CustomEdge edge : edgeList) {
+                    boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
+                            new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
+                    System.out.println(testIfEdgeAdded);
+                }
+            }
+
+//            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
+//            ShowGraph.printGraphEdges(asSubgraph);
+//            ShowGraph.printGraph(asSubgraph);
+//            KolmogorovMinimumWeightPerfectMatching<String, CustomEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(asSubgraph);
+//            MatchingAlgorithm.Matching<String, CustomEdge> matching1 = matching.getMatching();
+//            for (CustomEdge edge : matching1.getEdges()) {
+//                boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
+//                        new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
+//                System.out.println(testIfEdgeAdded);
+//            }
             System.out.println(matching1);
             ShowGraph.printGraphEdges(this.graph);
             System.out.println("Graph is Eulerian: " + GraphTests.isEulerian(this.graph));
