@@ -1,11 +1,16 @@
 package core;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.BiconnectivityInspector;
+import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.generate.CompleteGraphGenerator;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.WeightedMultigraph;
 
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class CustomGraph {
@@ -18,6 +23,27 @@ public class CustomGraph {
         // Use the CompleteGraphGenerator object to make completeGraph a
         // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
+
+//        Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
+//        //populate nodes
+//        for (String vertex : completeGraph.vertexSet()) {
+//            tmpGraph.addVertex(vertex);
+//        }
+//        Set<CustomEdge> customEdges = completeGraph.edgeSet();
+//        for (CustomEdge edge: customEdges) {
+//            if(!edge.getWeight1().equals(Postman.INF_WEIGHT)) {
+//                tmpGraph.addEdge(completeGraph.getEdgeSource(edge),completeGraph.getEdgeTarget(edge));
+//            }
+//            if(!edge.getWeight2().equals(Postman.INF_WEIGHT)) {
+//                tmpGraph.addEdge(completeGraph.getEdgeTarget(edge),completeGraph.getEdgeSource(edge));
+//            }
+//        }
+//
+//        GabowStrongConnectivityInspector<String,DefaultEdge> inspector = new GabowStrongConnectivityInspector<>(tmpGraph);
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//        System.out.println(inspector.isStronglyConnected());
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
 
         ShowGraph.printGraph(completeGraph);
         ShowGraph.printGraphEdges(completeGraph);

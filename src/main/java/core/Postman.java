@@ -3,6 +3,9 @@ package core;
 import javafx.geometry.Pos;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
+import org.jgrapht.alg.connectivity.BiconnectivityInspector;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
 import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
 import org.jgrapht.alg.interfaces.MatchingAlgorithm;
@@ -25,25 +28,98 @@ public class Postman {
     public Postman() {
     }
 
-    public Postman(Graph createdGraph, int percent) throws Exception {
+    public Postman(Graph createdGraph, int percent, boolean testConnectivity, int NumberOfTriesToFindConnectedGraph) throws Exception {
         //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
         if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
-        this.graph = createOneDirectionRoads(createdGraph, percent);
+        this.graph = createOneDirectionRoads(createdGraph, percent, testConnectivity, NumberOfTriesToFindConnectedGraph);
         System.out.println(toString());
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
 
-    public Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent) throws Exception {
+    public Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent,
+                                                             boolean testConnectivity, int NumberOfTriesToFindConnectedGraph)
+            throws Exception {
+
         if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
+
+
+        //******************************
+//        Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
+//        //populate nodes
+//        for (String vertex : graph.vertexSet()) {
+//            tmpGraph.addVertex(vertex);
+//        }
+//        Set<CustomEdge> customEdges = graph.edgeSet();
+//        for (CustomEdge edge : customEdges) {
+//            if (!edge.getWeight1().equals(Postman.INF_WEIGHT)) {
+//                tmpGraph.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
+//            }
+//            if (!edge.getWeight2().equals(Postman.INF_WEIGHT)) {
+//                tmpGraph.addEdge(graph.getEdgeTarget(edge), graph.getEdgeSource(edge));
+//            }
+//        }
+        //******************************
+
         int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
         System.out.println("numberOfOneDirectionRoads: " + numberOfOneDirectionRoads);
-        if (numberOfOneDirectionRoads > 0) {
-            int[] arrayOfInfEdges = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
+        boolean isConnected = false;
+        int[] arrayOfInfEdges = null;
+        int cantfindcombination = 0;
+        while (!isConnected && numberOfOneDirectionRoads > 0) {
+//            if (numberOfOneDirectionRoads > 0) {
+            arrayOfInfEdges = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
 
+            if (testConnectivity == true) {
+                //******************************
+                Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
+                //populate nodes
+                for (String vertex : graph.vertexSet()) {
+                    tmpGraph.addVertex(vertex);
+                }
+                Set<CustomEdge> customEdges = graph.edgeSet();
+                for (CustomEdge edge : customEdges) {
+                    if (!edge.getWeight1().equals(Postman.INF_WEIGHT)) {
+                        tmpGraph.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
+                    }
+                    if (!edge.getWeight2().equals(Postman.INF_WEIGHT)) {
+                        tmpGraph.addEdge(graph.getEdgeTarget(edge), graph.getEdgeSource(edge));
+                    }
+                }
+                //******************************
+
+
+                int j = 0;
+                int count222 = 0;
+                for (CustomEdge edge : graph.edgeSet()) {
+                    if (arrayOfInfEdges[j] == count222) {
+//                    edge.setWeight2(Postman.INF_WEIGHT);
+                        tmpGraph.removeEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
+                        j++;
+                    }
+                    count222++;
+                    if (arrayOfInfEdges.length <= j) {
+                        break;
+                    }
+                }
+                GabowStrongConnectivityInspector<String, DefaultEdge> inspector = new GabowStrongConnectivityInspector<>(tmpGraph);
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                isConnected = inspector.isStronglyConnected();
+                System.out.println(isConnected);
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                if (!isConnected && (cantfindcombination > NumberOfTriesToFindConnectedGraph)) {
+                    throw new Exception("Nie można znaleźć kombinacji by graf był silnie spójny");
+                }
+                cantfindcombination++;
+            } else {
+                break;
+            }
+        }
+
+        if (numberOfOneDirectionRoads > 0) {
             int i = 0;
             int count = 0;
             for (CustomEdge edge : graph.edgeSet()) {
@@ -57,6 +133,10 @@ public class Postman {
                 }
             }
         }
+//            }
+//    }
+
+
         return graph;
     }
 
