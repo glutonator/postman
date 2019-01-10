@@ -18,9 +18,10 @@ public class CustomGraph {
         // Use the CompleteGraphGenerator object to make completeGraph a
         // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
-
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych");
         ShowGraph.printGraph(completeGraph);
         ShowGraph.printGraphEdges(completeGraph);
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych -- KONIEC");
         return completeGraph;
     }
 
@@ -50,8 +51,10 @@ public class CustomGraph {
                     break;
                 }
             }
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych");
         ShowGraph.printGraph(graph);
         ShowGraph.printGraphEdges(graph);
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych -- KONIEC");
         return graph;
     }
 
@@ -73,8 +76,10 @@ public class CustomGraph {
             graph.addEdge(currVertex, firstVertex);
         if(!currVertex.equals(cycleVertex))
             graph.addEdge(cycleVertex, firstVertex);
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych");
         ShowGraph.printGraph(graph);
         ShowGraph.printGraphEdges(graph);
+        System.out.println("Graf wejściowy bez dróg jednokierunkowych -- KONIEC");
         return graph;
     }
 

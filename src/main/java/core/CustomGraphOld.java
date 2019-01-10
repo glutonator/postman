@@ -35,7 +35,6 @@ public class CustomGraphOld {
         ShowGraph.printGraph(completeGraph);
 
         DefaultEdge edge = completeGraph.getEdge("v0", "v1");
-        System.out.println("sdadsa");
         ShowGraph.printGraphEdges(completeGraph);
 
     }

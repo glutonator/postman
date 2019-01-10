@@ -31,7 +31,11 @@ public class Postman {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
         this.graph = createOneDirectionRoads(createdGraph, percent, testConnectivity, NumberOfTriesToFindConnectedGraph);
-        System.out.println(toString());
+//        System.out.println(toString());
+        System.out.println("Graf wejściowy z drogami jednokierunkowymi");
+        ShowGraph.printGraphEdges(this.graph);
+        System.out.println("Graf wejściowy z drogami jednokierunkowymi -- KONIEC");
+
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
 
@@ -49,7 +53,6 @@ public class Postman {
         int[] arrayOfInfEdges = null;
         int cantfindcombination = 0;
         while (!isConnected && numberOfOneDirectionRoads > 0) {
-//            if (numberOfOneDirectionRoads > 0) {
             arrayOfInfEdges = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
 
             if (testConnectivity == true) {
@@ -86,7 +89,7 @@ public class Postman {
                 GabowStrongConnectivityInspector<String, DefaultEdge> inspector = new GabowStrongConnectivityInspector<>(tmpGraph);
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 isConnected = inspector.isStronglyConnected();
-                System.out.println(isConnected);
+                System.out.println("isStronglyConnected:" + isConnected);
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 if (!isConnected && (cantfindcombination > NumberOfTriesToFindConnectedGraph)) {
                     throw new Exception("Nie można znaleźć kombinacji by graf był silnie spójny");
@@ -136,39 +139,33 @@ public class Postman {
             //znalezienie nodów o nieparzystym stopniu
             Set<String> oddVertexes = new HashSet<>();
             Iterator<String> iter = new DepthFirstIterator<>(graph);
+            System.out.println("degrees:");
             while (iter.hasNext()) {
                 String vertex = iter.next();
                 int degree = this.graph.degreeOf(vertex);
-                System.out.println(degree);
+                System.out.print(degree + ",");
                 if (degree % 2 != 0) {
                     oddVertexes.add(vertex);
                 }
             }
-            //TODO: naprawienie matchingu
+            System.out.println();
+
             Graph<String, DefaultEdge> tmpgraph = new WeightedMultigraph(DefaultEdge.class);
             //populate nodes
             for (String vertex : oddVertexes) {
                 tmpgraph.addVertex(vertex);
             }
             String[] arrayOddVer = oddVertexes.toArray(new String[oddVertexes.size()]);
+            System.out.println("oddVertexes:");
             System.out.println(oddVertexes.toString());
             FloydWarshallShortestPaths floydWarshallShortestPaths = new FloydWarshallShortestPaths(this.graph);
             for (int i = 0; i < arrayOddVer.length - 1; i++) {
                 for (int j = i + 1; j < arrayOddVer.length; j++) {
-                    System.out.println("arrayOddVer");
-                    System.out.println(arrayOddVer[i]);
-                    System.out.println(arrayOddVer[j]);
                     double tmpWeight = floydWarshallShortestPaths.getPathWeight(arrayOddVer[i], arrayOddVer[j]);
                     DefaultEdge tmpedge = tmpgraph.addEdge(arrayOddVer[i], arrayOddVer[j]);
                     tmpgraph.setEdgeWeight(tmpedge, tmpWeight);
-                    System.out.println(tmpWeight);
-
                 }
             }
-
-//            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
-            ShowGraph.printGraphEdges(tmpgraph);
-            ShowGraph.printGraph(tmpgraph);
             KolmogorovMinimumWeightPerfectMatching<String, DefaultEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(tmpgraph);
             MatchingAlgorithm.Matching<String, DefaultEdge> matching1 = matching.getMatching();
             for (DefaultEdge edge1 : matching1.getEdges()) {
@@ -177,21 +174,12 @@ public class Postman {
                 for (CustomEdge edge : edgeList) {
                     boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
                             new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
-                    System.out.println(testIfEdgeAdded);
+                    System.out.println("edge added: " + testIfEdgeAdded);
                 }
             }
 
-//            AsSubgraph<String, CustomEdge> asSubgraph = new AsSubgraph<>(this.graph, oddVertexes);
-//            ShowGraph.printGraphEdges(asSubgraph);
-//            ShowGraph.printGraph(asSubgraph);
-//            KolmogorovMinimumWeightPerfectMatching<String, CustomEdge> matching = new KolmogorovMinimumWeightPerfectMatching<>(asSubgraph);
-//            MatchingAlgorithm.Matching<String, CustomEdge> matching1 = matching.getMatching();
-//            for (CustomEdge edge : matching1.getEdges()) {
-//                boolean testIfEdgeAdded = this.graph.addEdge(this.graph.getEdgeSource(edge), this.graph.getEdgeTarget(edge),
-//                        new CustomEdge(edge.getLabel(), edge.getWeight1(), edge.getWeight2()));
-//                System.out.println(testIfEdgeAdded);
-//            }
-            System.out.println(matching1);
+//            System.out.println(matching1);
+            System.out.println("New graph: " + GraphTests.isEulerian(this.graph));
             ShowGraph.printGraphEdges(this.graph);
             System.out.println("Graph is Eulerian: " + GraphTests.isEulerian(this.graph));
 
@@ -255,11 +243,11 @@ public class Postman {
             }
             uniqueNumber++;
         }
-        System.out.println("*************************************************");
-        System.out.println("graphDApostrophe:");
-        System.out.println(graphDApostrophe);
-        System.out.println("size: " + graphDApostrophe.edgeSet().size());
-        System.out.println("*************************************************");
+//        System.out.println("*************************************************");
+//        System.out.println("graphDApostrophe:");
+//        System.out.println(graphDApostrophe);
+//        System.out.println("size: " + graphDApostrophe.edgeSet().size());
+//        System.out.println("*************************************************");
         //definiowanie problemu przepływu o minimalnym koszcie
         Map<String, Integer> demand = createDemandMap(graphD_G);
 
@@ -277,8 +265,8 @@ public class Postman {
         MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows = costFlow.getMinimumCostFlow(problem);
 
         Map<LabelEdge, Double> optimalFlowMap = flows.getFlowMap();
-        System.out.println("**************************");
-        System.out.println("optimalFlowMap: " + optimalFlowMap);
+//        System.out.println("**************************");
+//        System.out.println("optimalFlowMap: " + optimalFlowMap);
 
         // Tworznie grafu D'' na podstawie optymalnych wartości przepływu
         Graph<String, LabelEdge> graphDApostrophe2 =
@@ -296,7 +284,7 @@ public class Postman {
                 String[] tmpLabel = edge.getLabel().split("\\.", 2);
                 String append = "." + tmpLabel[1];
                 String tmpLabel2 = tmpLabel[0].substring(1, tmpLabel[0].length() - 2);
-                System.out.println(tmpLabel2 + "---" + flow.toString());
+//                System.out.println(tmpLabel2 + "---" + flow.toString());
                 //ekstrakcja początku i końca krawędzi
                 String[] target_source = tmpLabel2.split(",");
                 //nadanie przejrzystych nazw zmiennych - target -> j && source -> i
@@ -304,34 +292,34 @@ public class Postman {
                 String source = target_source[1];
 
                 if (flow.equals(0.0)) {
-                    System.out.println("if");
+//                    System.out.println("if");
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-                        System.out.println("_________________________________________________");
+//                        System.out.println("_________________________________________________");
                         LabelEdge labelEdge = new LabelEdge(source + "," + target);
                         boolean tmp = graphDApostrophe2.addEdge(source, target, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight1());
-                        System.out.println(i);
-                        System.out.println("tmp:" + tmp);
-                        System.out.println("_________________________________________________");
+//                        System.out.println(i);
+//                        System.out.println("tmp:" + tmp);
+//                        System.out.println("_________________________________________________");
 
                     }
                 } else {
-                    System.out.println("else");
+//                    System.out.println("else");
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-                        System.out.println("_________________________________________________");
+//                        System.out.println("_________________________________________________");
                         LabelEdge labelEdge = new LabelEdge(target + "," + source);
                         boolean tmp = graphDApostrophe2.addEdge(target, source, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight2());
-                        System.out.println(i);
-                        System.out.println("tmp:" + tmp);
-                        System.out.println("_________________________________________________");
+//                        System.out.println(i);
+//                        System.out.println("tmp:" + tmp);
+//                        System.out.println("_________________________________________________");
                     }
                 }
             }
         }
-        ShowGraph.printGraph(graphDApostrophe2);
+//        ShowGraph.printGraph(graphDApostrophe2);
         System.out.println("****************************************************");
         System.out.println("Krawędzie należace do drogi chińskiego listonosza:");
         ShowGraph.printGraphEdges(graphDApostrophe2);
@@ -355,7 +343,7 @@ public class Postman {
             }
         }
         Double numberOfNewEdges = flows.getFlow(labelEdge);
-        System.out.println(setOfEdges + numberOfNewEdges.toString());
+//        System.out.println(setOfEdges + numberOfNewEdges.toString());
         return numberOfNewEdges;
     }
 
