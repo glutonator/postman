@@ -1,10 +1,7 @@
 package core;
 
-import javafx.geometry.Pos;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphTests;
-import org.jgrapht.alg.connectivity.BiconnectivityInspector;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
 import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
@@ -20,7 +17,6 @@ import java.util.function.Function;
 
 public class Postman {
     private Graph<String, CustomEdge> graph;
-    //    private int size;
     public static Double INF_WEIGHT = 100.0;
     //    public static  Integer INF_CAPACITY = 999;
     public static Integer INF_CAPACITY = CapacityScalingMinimumCostFlow.CAP_INF;
@@ -29,7 +25,6 @@ public class Postman {
     }
 
     public Postman(Graph createdGraph, int percent, boolean testConnectivity, int NumberOfTriesToFindConnectedGraph) throws Exception {
-        //TODO: aktualne zalożenie zakłada, że dwa nody sa połączone ze sobą tylko jedną krawędzią o dwóch wagach
         if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
@@ -45,24 +40,6 @@ public class Postman {
         if (percent < 0 || percent > 100) {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
-
-
-        //******************************
-//        Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
-//        //populate nodes
-//        for (String vertex : graph.vertexSet()) {
-//            tmpGraph.addVertex(vertex);
-//        }
-//        Set<CustomEdge> customEdges = graph.edgeSet();
-//        for (CustomEdge edge : customEdges) {
-//            if (!edge.getWeight1().equals(Postman.INF_WEIGHT)) {
-//                tmpGraph.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
-//            }
-//            if (!edge.getWeight2().equals(Postman.INF_WEIGHT)) {
-//                tmpGraph.addEdge(graph.getEdgeTarget(edge), graph.getEdgeSource(edge));
-//            }
-//        }
-        //******************************
 
         int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
         System.out.println("numberOfOneDirectionRoads: " + numberOfOneDirectionRoads);
@@ -96,7 +73,6 @@ public class Postman {
                 int count222 = 0;
                 for (CustomEdge edge : graph.edgeSet()) {
                     if (arrayOfInfEdges[j] == count222) {
-//                    edge.setWeight2(Postman.INF_WEIGHT);
                         tmpGraph.removeEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
                         j++;
                     }
@@ -133,10 +109,6 @@ public class Postman {
                 }
             }
         }
-//            }
-//    }
-
-
         return graph;
     }
 
@@ -155,13 +127,11 @@ public class Postman {
             System.out.println("Graph is not Eulerian");
             System.out.println("Conversion to Eulerian");
 
-            CustomGraphOld customGraphOld = new CustomGraphOld();
-
             //nadanie krawędziom grafu G wag - nie używane sa do niczego innego !!!
             for (CustomEdge edge : this.graph.edgeSet()) {
                 this.graph.setEdgeWeight(edge, (edge.getWeight1() + edge.getWeight2()) / 2);
             }
-            //znalezienie nodów o nieparzystym stopmniu
+            //znalezienie nodów o nieparzystym stopniu
             Set<String> oddVertexes = new HashSet<>();
             Iterator<String> iter = new DepthFirstIterator<>(graph);
             while (iter.hasNext()) {
@@ -196,7 +166,7 @@ public class Postman {
     }
 
     public void alg() throws IOException {
-        //todo: zmienna graph używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
+        // zmienna graph używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
         Graph<String, DefaultWeightedEdge> graphD_G = createGraphD_G();
 
         Graph<String, LabelEdge> graphDApostrophe =
@@ -209,7 +179,6 @@ public class Postman {
         //populate edges
         //unikalny numer umożliwiający rozróznianie krawędzi !!! Umożliwia rozróżnianie krawędzi równoległych o tych samych wagach!!!
         int uniqueNumber = 0;
-        int couttmp = 0;
         for (CustomEdge edge : this.graph.edgeSet()) {
             String source = this.graph.getEdgeSource(edge);
             String target = this.graph.getEdgeTarget(edge);
@@ -244,11 +213,6 @@ public class Postman {
             for (LabelEdge edge1 : allEdgesThree) {
                 if (edge1.getLabel().equals("(" + target + "," + source + ")'" + uniqueAppend)) {
                     graphDApostrophe.setEdgeWeight(edge1, (c_ji - c_ij) / 2);
-//                    System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
-//                    System.out.println(edge1);
-//                    System.out.println(couttmp);
-                    couttmp++;
-//                    break;
                 }
             }
             uniqueNumber++;
@@ -289,7 +253,6 @@ public class Postman {
         for (LabelEdge edge : optimalFlowMap.keySet()) {
             if (edge.getLabel().contains("\'")) {
                 Double flow = optimalFlowMap.get(edge);
-                //TODO: Tutaj label się zwali jak dodam kraœędezie równoległe
                 //ekstrachowanie nazw wierchoków z etykiety
                 //tmpLabel- konwersja - (v3,v0)'.xxx. -> v3,v0 oraz .xxx. //.xxx. służy do rozrózniania krawędzi równoległych
                 String[] tmpLabel = edge.getLabel().split("\\.", 2);
@@ -302,7 +265,6 @@ public class Postman {
                 String target = target_source[0];
                 String source = target_source[1];
 
-                //TODO:wagi dodawnaych kraœedzi chyba są źle, nadawne są tylko pierwszej karœedzi
                 if (flow.equals(0.0)) {
                     System.out.println("if");
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
@@ -332,9 +294,12 @@ public class Postman {
             }
         }
         ShowGraph.printGraph(graphDApostrophe2);
+        System.out.println("****************************************************");
+        System.out.println("Krawędzie należace do drogi chińskiego listonosza:");
         ShowGraph.printGraphEdges(graphDApostrophe2);
         ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graphDApostrophe2);
-        System.out.println(GraphTests.isEulerian(graphDApostrophe2));
+        System.out.println("Graf jest grafem eulera, każda krawędź skierowana wybrana dokładnie raz" +
+                " należy do drogi chińskiego listonosza: " + GraphTests.isEulerian(graphDApostrophe2));
 
         testIfInfEdgesAreUsed(graphDApostrophe2);
     }

@@ -1,7 +1,5 @@
 package core;
 
-import javafx.geometry.Pos;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,7 +14,6 @@ public class CustomEdge extends DefaultWeightedEdge {
         double random = ThreadLocalRandom.current().nextInt(2, 10);
         this.label = "aaaa";
         this.weight1 = random;
-//        this.weight2 = random+2;
         this.weight2 = 999.0;
 
 
@@ -25,8 +22,6 @@ public class CustomEdge extends DefaultWeightedEdge {
         double random = ThreadLocalRandom.current().nextInt(2, 10);
         this.label = label;
         this.weight1 = random;
-//        this.weight1 = iter;
-//        iter=iter-1;
         this.weight2 = random;
 //        this.weight2 = Postman.INF_WEIGHT;
     }

@@ -1,16 +1,11 @@
 package core;
 
 import org.jgrapht.Graph;
-import org.jgrapht.alg.connectivity.BiconnectivityInspector;
-import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.generate.CompleteGraphGenerator;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.WeightedMultigraph;
 
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Supplier;
 
 public class CustomGraph {
@@ -23,27 +18,6 @@ public class CustomGraph {
         // Use the CompleteGraphGenerator object to make completeGraph a
         // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
-
-//        Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
-//        //populate nodes
-//        for (String vertex : completeGraph.vertexSet()) {
-//            tmpGraph.addVertex(vertex);
-//        }
-//        Set<CustomEdge> customEdges = completeGraph.edgeSet();
-//        for (CustomEdge edge: customEdges) {
-//            if(!edge.getWeight1().equals(Postman.INF_WEIGHT)) {
-//                tmpGraph.addEdge(completeGraph.getEdgeSource(edge),completeGraph.getEdgeTarget(edge));
-//            }
-//            if(!edge.getWeight2().equals(Postman.INF_WEIGHT)) {
-//                tmpGraph.addEdge(completeGraph.getEdgeTarget(edge),completeGraph.getEdgeSource(edge));
-//            }
-//        }
-//
-//        GabowStrongConnectivityInspector<String,DefaultEdge> inspector = new GabowStrongConnectivityInspector<>(tmpGraph);
-//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-//        System.out.println(inspector.isStronglyConnected());
-//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
 
         ShowGraph.printGraph(completeGraph);
         ShowGraph.printGraphEdges(completeGraph);
@@ -104,37 +78,6 @@ public class CustomGraph {
         return graph;
     }
 
-//    public static Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent) throws Exception {
-//        if(percent<0 || percent >100) {
-//            throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
-//        }
-//        int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
-//        System.out.println("numberOfOneDirectionRoads: " + numberOfOneDirectionRoads);
-//        if (numberOfOneDirectionRoads > 0) {
-//            int arrayOfInfEdges[] = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
-//
-//            int i = 0;
-//            int count = 0;
-//            for (CustomEdge edge : graph.edgeSet()) {
-//                if (arrayOfInfEdges[i] == count) {
-//                    edge.setWeight2(Postman.INF_WEIGHT);
-//                    i++;
-//                }
-//                count++;
-//                if (arrayOfInfEdges.length <= i) {
-//                    break;
-//                }
-//            }
-//        }
-//        return graph;
-//    }
-//
-//    public static int[] genereteRandCombiantion(int numeberOfNumbers, int limitNumbers) {
-//        Integer[] indices = new Integer[numeberOfNumbers];
-//        Arrays.setAll(indices, i -> i);
-//        Collections.shuffle(Arrays.asList(indices));
-//        return Arrays.stream(indices).mapToInt(Integer::intValue).limit(limitNumbers).sorted().toArray();
-//    }
 }
 class VertexSupplier implements Supplier<String>{
     private int id = 0;
