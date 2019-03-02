@@ -9,14 +9,12 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 public class CustomGraph {
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public static Graph createComleteGraphUndireted(int size) {
         Graph<String, CustomEdge> completeGraph = new WeightedMultigraph(new VertexSupplier(), new EdgeSupplier());
         CompleteGraphGenerator<String, CustomEdge> completeGenerator = new CompleteGraphGenerator<>(size);
 
-        // Use the CompleteGraphGenerator object to make completeGraph a
-        // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
         System.out.println("Graf wejściowy bez dróg jednokierunkowych");
         ShowGraph.printGraph(completeGraph);

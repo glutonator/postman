@@ -20,9 +20,4 @@ public class LabelEdge extends DefaultWeightedEdge {
                 "(" + this.getSource() + " : " + this.getTarget() + ")"+ "w:" +this.getWeight()+
                 '}';
     }
-//    @Override
-//    public String toString() {
-//        return
-//                "(" + this.getSource() + " : " + this.getTarget() + ")";
-//    }
 }

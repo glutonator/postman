@@ -4,6 +4,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.GraphTests;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.HierholzerEulerianCycle;
 import org.jgrapht.alg.flow.mincost.CapacityScalingMinimumCostFlow;
 import org.jgrapht.alg.flow.mincost.MinimumCostFlowProblem;
 import org.jgrapht.alg.interfaces.MatchingAlgorithm;
@@ -13,15 +14,13 @@ import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.DepthFirstIterator;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
 public class Postman {
     private Graph<String, CustomEdge> graph;
-    public static Double INF_WEIGHT = 100.0;
-    //    public static  Integer INF_CAPACITY = 999;
-    public static Integer INF_CAPACITY = CapacityScalingMinimumCostFlow.CAP_INF;
+    public static final Double INF_WEIGHT = 100.0;
+    public static final Integer INF_CAPACITY = CapacityScalingMinimumCostFlow.CAP_INF;
 
     public Postman() {
     }
@@ -31,12 +30,10 @@ public class Postman {
             throw new Exception("Zmienna percent jest albo mniejsza od 0, albo większa od 100");
         }
         this.graph = createOneDirectionRoads(createdGraph, percent, testConnectivity, NumberOfTriesToFindConnectedGraph);
-//        System.out.println(toString());
         System.out.println("Graf wejściowy z drogami jednokierunkowymi");
         ShowGraph.printGraphEdges(this.graph);
         System.out.println("Graf wejściowy z drogami jednokierunkowymi -- KONIEC");
 
-        ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graph);
     }
 
     public Graph<String, CustomEdge> createOneDirectionRoads(Graph<String, CustomEdge> graph, int percent,
@@ -48,14 +45,14 @@ public class Postman {
         }
 
         int numberOfOneDirectionRoads = Double.valueOf(graph.edgeSet().size() * percent / 100).intValue();
-        System.out.println("numberOfOneDirectionRoads: " + numberOfOneDirectionRoads);
+        System.out.println("Liczba dróg jedokierunkowych: " + numberOfOneDirectionRoads);
         boolean isConnected = false;
         int[] arrayOfInfEdges = null;
         int cantfindcombination = 0;
         while (!isConnected && numberOfOneDirectionRoads > 0) {
             arrayOfInfEdges = genereteRandCombiantion(graph.edgeSet().size(), numberOfOneDirectionRoads);
 
-            if (testConnectivity == true) {
+            if (testConnectivity) {
                 //******************************
                 Graph<String, DefaultEdge> tmpGraph = new DirectedMultigraph<>(DefaultEdge.class);
                 //populate nodes
@@ -89,7 +86,7 @@ public class Postman {
                 GabowStrongConnectivityInspector<String, DefaultEdge> inspector = new GabowStrongConnectivityInspector<>(tmpGraph);
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 isConnected = inspector.isStronglyConnected();
-                System.out.println("isStronglyConnected:" + isConnected);
+                System.out.println("Graf jest silnie spójny:" + isConnected);
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 if (!isConnected && (cantfindcombination > NumberOfTriesToFindConnectedGraph)) {
                     throw new Exception("Nie można znaleźć kombinacji by graf był silnie spójny");
@@ -191,7 +188,7 @@ public class Postman {
         System.out.println("*************************************************");
     }
 
-    public void alg() throws IOException {
+    public void alg()  {
         // zmienna graph używana w algorytmie jest grafem G'-eulerowskim który jest podmienioną wersją grafu G
         Graph<String, DefaultWeightedEdge> graphD_G = createGraphD_G();
 
@@ -210,7 +207,7 @@ public class Postman {
             String target = this.graph.getEdgeTarget(edge);
             Double c_ij = edge.getWeight1();
             Double c_ji = edge.getWeight2();
-            String uniqueAppend = new StringBuilder().append(".").append(uniqueNumber).append(".").toString();
+            String uniqueAppend = "." + uniqueNumber + ".";
             //(i,j)
             graphDApostrophe.addEdge(source, target, new LabelEdge("(" + source + "," + target + ")" + uniqueAppend));
             //******
@@ -243,11 +240,7 @@ public class Postman {
             }
             uniqueNumber++;
         }
-//        System.out.println("*************************************************");
-//        System.out.println("graphDApostrophe:");
-//        System.out.println(graphDApostrophe);
-//        System.out.println("size: " + graphDApostrophe.edgeSet().size());
-//        System.out.println("*************************************************");
+
         //definiowanie problemu przepływu o minimalnym koszcie
         Map<String, Integer> demand = createDemandMap(graphD_G);
 
@@ -265,8 +258,6 @@ public class Postman {
         MinimumCostFlowAlgorithm.MinimumCostFlow<LabelEdge> flows = costFlow.getMinimumCostFlow(problem);
 
         Map<LabelEdge, Double> optimalFlowMap = flows.getFlowMap();
-//        System.out.println("**************************");
-//        System.out.println("optimalFlowMap: " + optimalFlowMap);
 
         // Tworznie grafu D'' na podstawie optymalnych wartości przepływu
         Graph<String, LabelEdge> graphDApostrophe2 =
@@ -295,39 +286,38 @@ public class Postman {
 //                    System.out.println("if");
                     Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, target, source, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-//                        System.out.println("_________________________________________________");
                         LabelEdge labelEdge = new LabelEdge(source + "," + target);
                         boolean tmp = graphDApostrophe2.addEdge(source, target, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight1());
-//                        System.out.println(i);
-//                        System.out.println("tmp:" + tmp);
-//                        System.out.println("_________________________________________________");
 
                     }
                 } else {
 //                    System.out.println("else");
-                    Double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
+                    double numberOfNewEdges = getNumberOfNewEdges(graphDApostrophe, flows, source, target, append) + 1;
                     for (int i = 0; i < numberOfNewEdges; i++) {
-//                        System.out.println("_________________________________________________");
                         LabelEdge labelEdge = new LabelEdge(target + "," + source);
                         boolean tmp = graphDApostrophe2.addEdge(target, source, labelEdge);
                         graphDApostrophe2.setEdgeWeight(labelEdge, this.graph.getEdge(source, target).getWeight2());
-//                        System.out.println(i);
-//                        System.out.println("tmp:" + tmp);
-//                        System.out.println("_________________________________________________");
                     }
                 }
             }
         }
-//        ShowGraph.printGraph(graphDApostrophe2);
         System.out.println("****************************************************");
         System.out.println("Krawędzie należace do drogi chińskiego listonosza:");
         ShowGraph.printGraphEdges(graphDApostrophe2);
-        ShowGraph.givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(graphDApostrophe2);
         System.out.println("Graf jest grafem eulera, każda krawędź skierowana wybrana dokładnie raz" +
                 " należy do drogi chińskiego listonosza: " + GraphTests.isEulerian(graphDApostrophe2));
 
         testIfInfEdgesAreUsed(graphDApostrophe2);
+
+        HierholzerEulerianCycle<String, LabelEdge> objectObjectHierholzerEulerianCycle = new HierholzerEulerianCycle<>();
+        GraphPath<String, LabelEdge> eulerianCycle = objectObjectHierholzerEulerianCycle.getEulerianCycle(graphDApostrophe2);
+        List<String> vertexList = eulerianCycle.getVertexList();
+
+        System.out.println("____________________________________");
+        System.out.println("Lista kolejnych wierchołków ścieżki chińskiego listonosza:");
+        System.out.println(String.join(" -> ",vertexList));
+
     }
 
     public Double getNumberOfNewEdges(Graph<String, LabelEdge> graphDApostrophe,
@@ -342,9 +332,7 @@ public class Postman {
                 break;
             }
         }
-        Double numberOfNewEdges = flows.getFlow(labelEdge);
-//        System.out.println(setOfEdges + numberOfNewEdges.toString());
-        return numberOfNewEdges;
+        return flows.getFlow(labelEdge);
     }
 
     public Map<String, Integer> createDemandMap(Graph<String, DefaultWeightedEdge> graphD_G) {
@@ -356,7 +344,7 @@ public class Postman {
             int d_i = -(graphD_G.outDegreeOf(vertex) - graphD_G.inDegreeOf(vertex));
             demand.put(vertex, d_i);
         }
-        System.out.println("demand: " + demand);
+        System.out.println("Zapotrzebowanie wierzchołków: " + demand);
         return demand;
     }
 
@@ -398,7 +386,6 @@ public class Postman {
     public String toString() {
         return "Postman{" +
                 "graph=" + graph +
-//                ", weightsMap=" + weightsMap +
                 '}';
     }
 }
